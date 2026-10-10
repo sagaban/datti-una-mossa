@@ -38,4 +38,6 @@ TanStack Start en **modo SPA**: el build prerenderiza un shell (`dist/client/ind
 - `src/lib/sync-core.ts`: fusión y validación de la sincronización (compartido con el servidor)
 - `src/lib/sync.ts`: cuándo sincronizar, en el cliente
 - `netlify/functions/sync.mts`: endpoint `/api/sync` (Netlify Function + Blobs)
+
+Guía para agentes de IA y contribuciones: [AGENTS.md](AGENTS.md) (invariantes de datos, convenciones de contenido, sincronización).
 - `src/routes/`: pantallas (file-based routing)
