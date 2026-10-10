@@ -15,6 +15,7 @@ export const TENSE_LEVEL: Record<Tense, Level> = {
   'futuro anteriore': 'B2',
   'condizionale passato': 'B2',
   'congiuntivo imperfetto': 'B2',
+  'passato remoto': 'C1',
 }
 
 export const VERBS: Verb[] = [
@@ -25,6 +26,7 @@ export const VERBS: Verb[] = [
     pp: 'stato',
     fut: 'sar',
     forms: {
+      'passato remoto': ['fui', 'fosti', 'fu', 'fummo', 'foste', 'furono'],
       presente: ['sono', 'sei', 'è', 'siamo', 'siete', 'sono'],
       imperfetto: ['ero', 'eri', 'era', 'eravamo', 'eravate', 'erano'],
       congiuntivo: ['sia', 'sia', 'sia', 'siamo', 'siate', 'siano'],
@@ -34,6 +36,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'avere',
+    rem: 'ebb',
     es: 'tener / haber',
     fut: 'avr',
     forms: {
@@ -44,6 +47,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'fare',
+    rem: 'fec',
     es: 'hacer',
     pp: 'fatto',
     fut: 'far',
@@ -65,6 +69,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'venire',
+    rem: 'venn',
     es: 'venir',
     aux: 'essere',
     pp: 'venuto',
@@ -80,6 +85,7 @@ export const VERBS: Verb[] = [
     aux: 'essere',
     fut: 'star',
     forms: {
+      'passato remoto': ['stetti', 'stesti', 'stette', 'stemmo', 'steste', 'stettero'],
       presente: ['sto', 'stai', 'sta', 'stiamo', 'state', 'stanno'],
       congiuntivo: ['stia', 'stia', 'stia', 'stiamo', 'stiate', 'stiano'],
       'congiuntivo imperfetto': ['stessi', 'stessi', 'stesse', 'stessimo', 'steste', 'stessero'],
@@ -88,6 +94,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'dire',
+    rem: 'diss',
     es: 'decir',
     pp: 'detto',
     fut: 'dir',
@@ -102,6 +109,7 @@ export const VERBS: Verb[] = [
     es: 'dar',
     fut: 'dar',
     forms: {
+      'passato remoto': ['diedi/detti', 'desti', 'diede/dette', 'demmo', 'deste', 'diedero/dettero'],
       presente: ['do', 'dai', 'dà', 'diamo', 'date', 'danno'],
       congiuntivo: ['dia', 'dia', 'dia', 'diamo', 'diate', 'diano'],
       'congiuntivo imperfetto': ['dessi', 'dessi', 'desse', 'dessimo', 'deste', 'dessero'],
@@ -118,6 +126,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'volere',
+    rem: 'voll',
     es: 'querer',
     fut: 'vorr',
     forms: {
@@ -128,6 +137,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'dovere',
+    rem: 'dovett',
     es: 'deber / tener que',
     fut: 'dovr',
     forms: {
@@ -137,6 +147,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'sapere',
+    rem: 'sepp',
     es: 'saber',
     fut: 'sapr',
     forms: {
@@ -156,6 +167,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'bere',
+    rem: 'bevv',
     es: 'beber / tomar',
     pp: 'bevuto',
     fut: 'berr',
@@ -167,6 +179,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'rimanere',
+    rem: 'rimas',
     es: 'quedarse / permanecer',
     aux: 'essere',
     pp: 'rimasto',
@@ -178,6 +191,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'tenere',
+    rem: 'tenn',
     es: 'tener (sostener)',
     pp: 'tenuto',
     fut: 'terr',
@@ -189,6 +203,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'scegliere',
+    rem: 'scels',
     es: 'elegir',
     pp: 'scelto',
     forms: {
@@ -198,6 +213,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'piacere',
+    rem: 'piacqu',
     es: 'gustar',
     aux: 'essere',
     pp: 'piaciuto',
@@ -231,20 +247,20 @@ export const VERBS: Verb[] = [
   { inf: 'lasciare', es: 'dejar' },
 
   // -ere
-  { inf: 'prendere', es: 'tomar / agarrar', pp: 'preso' },
-  { inf: 'vedere', es: 'ver', pp: 'visto', fut: 'vedr' },
-  { inf: 'leggere', es: 'leer', pp: 'letto' },
-  { inf: 'scrivere', es: 'escribir', pp: 'scritto' },
-  { inf: 'mettere', es: 'poner', pp: 'messo' },
-  { inf: 'chiudere', es: 'cerrar', pp: 'chiuso' },
-  { inf: 'vivere', es: 'vivir', pp: 'vissuto', fut: 'vivr' },
+  { inf: 'prendere', rem: 'pres', es: 'tomar / agarrar', pp: 'preso' },
+  { inf: 'vedere', rem: 'vid', es: 'ver', pp: 'visto', fut: 'vedr' },
+  { inf: 'leggere', rem: 'less', es: 'leer', pp: 'letto' },
+  { inf: 'scrivere', rem: 'scriss', es: 'escribir', pp: 'scritto' },
+  { inf: 'mettere', rem: 'mis', es: 'poner', pp: 'messo' },
+  { inf: 'chiudere', rem: 'chius', es: 'cerrar', pp: 'chiuso' },
+  { inf: 'vivere', rem: 'viss', es: 'vivir', pp: 'vissuto', fut: 'vivr' },
   { inf: 'credere', es: 'creer' },
-  { inf: 'conoscere', es: 'conocer', pp: 'conosciuto' },
-  { inf: 'perdere', es: 'perder', pp: 'perso' },
-  { inf: 'rispondere', es: 'responder', pp: 'risposto' },
-  { inf: 'chiedere', es: 'preguntar / pedir', pp: 'chiesto' },
-  { inf: 'correre', es: 'correr', pp: 'corso' },
-  { inf: 'decidere', es: 'decidir', pp: 'deciso' },
+  { inf: 'conoscere', rem: 'conobb', es: 'conocer', pp: 'conosciuto' },
+  { inf: 'perdere', rem: 'pers', es: 'perder', pp: 'perso' },
+  { inf: 'rispondere', rem: 'rispos', es: 'responder', pp: 'risposto' },
+  { inf: 'chiedere', rem: 'chies', es: 'preguntar / pedir', pp: 'chiesto' },
+  { inf: 'correre', rem: 'cors', es: 'correr', pp: 'corso' },
+  { inf: 'decidere', rem: 'decis', es: 'decidir', pp: 'deciso' },
   { inf: 'vendere', es: 'vender' },
 
   // -ire
@@ -292,6 +308,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'tradurre',
+    rem: 'traduss',
     es: 'traducir',
     pp: 'tradotto',
     fut: 'tradurr',
@@ -304,6 +321,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'spegnere',
+    rem: 'spens',
     es: 'apagar',
     pp: 'spento',
     forms: {
@@ -313,6 +331,7 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'togliere',
+    rem: 'tols',
     es: 'quitar / sacar',
     pp: 'tolto',
     forms: {
@@ -322,22 +341,23 @@ export const VERBS: Verb[] = [
   },
   {
     inf: 'cadere',
+    rem: 'cadd',
     es: 'caer / caerse',
     aux: 'essere',
     fut: 'cadr',
     note: 'No es reflexivo: sono caduto = me caí.',
   },
-  { inf: 'nascere', es: 'nacer', aux: 'essere', pp: 'nato' },
-  { inf: 'scendere', es: 'bajar', aux: 'essere', pp: 'sceso' },
-  { inf: 'succedere', es: 'suceder / pasar', aux: 'essere', pp: 'successo', note: 'Cos’è successo? = ¿Qué pasó?' },
-  { inf: 'accendere', es: 'encender / prender', pp: 'acceso' },
-  { inf: 'spendere', es: 'gastar (dinero)', pp: 'speso' },
-  { inf: 'vincere', es: 'ganar (un premio, un partido)', pp: 'vinto', note: 'Ganar dinero trabajando es “guadagnare”.' },
-  { inf: 'ridere', es: 'reír', pp: 'riso' },
-  { inf: 'piangere', es: 'llorar', pp: 'pianto' },
-  { inf: 'rompere', es: 'romper', pp: 'rotto' },
-  { inf: 'muovere', es: 'mover', pp: 'mosso' },
-  { inf: 'nascondere', es: 'esconder', pp: 'nascosto' },
+  { inf: 'nascere', rem: 'nacqu', es: 'nacer', aux: 'essere', pp: 'nato' },
+  { inf: 'scendere', rem: 'sces', es: 'bajar', aux: 'essere', pp: 'sceso' },
+  { inf: 'succedere', rem: 'success', es: 'suceder / pasar', aux: 'essere', pp: 'successo', note: 'Cos’è successo? = ¿Qué pasó?' },
+  { inf: 'accendere', rem: 'acces', es: 'encender / prender', pp: 'acceso' },
+  { inf: 'spendere', rem: 'spes', es: 'gastar (dinero)', pp: 'speso' },
+  { inf: 'vincere', rem: 'vins', es: 'ganar (un premio, un partido)', pp: 'vinto', note: 'Ganar dinero trabajando es “guadagnare”.' },
+  { inf: 'ridere', rem: 'ris', es: 'reír', pp: 'riso' },
+  { inf: 'piangere', rem: 'pians', es: 'llorar', pp: 'pianto' },
+  { inf: 'rompere', rem: 'rupp', es: 'romper', pp: 'rotto' },
+  { inf: 'muovere', rem: 'moss', es: 'mover', pp: 'mosso' },
+  { inf: 'nascondere', rem: 'nascos', es: 'esconder', pp: 'nascosto' },
   { inf: 'scoprire', es: 'descubrir', pp: 'scoperto' },
   { inf: 'soffrire', es: 'sufrir', pp: 'sofferto' },
   { inf: 'ricevere', es: 'recibir' },
@@ -399,6 +419,7 @@ export const VERBS: Verb[] = [
   { inf: 'trasferirsi', es: 'mudarse', isc: true },
   {
     inf: 'sedersi',
+    rem: 'sedett',
     es: 'sentarse',
     forms: {
       presente: ['siedo', 'siedi', 'siede', 'sediamo', 'sedete', 'siedono'],

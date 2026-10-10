@@ -106,7 +106,7 @@ export const GRAMMAR_B2: GrammarTopic[] = [
   {
     id: 'passato-remoto',
     title: 'Passato remoto',
-    level: 'B2',
+    level: 'C1',
     body: [
       'Tiempo de la narración escrita y de hechos históricos. En el habla se usa sobre todo en el sur y en Toscana; en el norte casi no.',
       '• -are: parlai, parlasti, parlò, parlammo, parlaste, parlarono',
@@ -115,7 +115,7 @@ export const GRAMMAR_B2: GrammarTopic[] = [
       'Muchos irregulares siguen el patrón 1-3-3: sólo io, lui/lei y loro son irregulares. Ej. avere: ebbi, avesti, ebbe, avemmo, aveste, ebbero.',
       '• essere → fui, fosti, fu, fummo, foste, furono',
       '• fare → feci, dire → dissi, venire → venni, nascere → nacqui, vedere → vidi, prendere → presi, scrivere → scrissi',
-      'Para leer a Calvino, Ferrante o las noticias de historia es imprescindible reconocerlo.',
+      'Para leer a Calvino, Ferrante o las noticias de historia es imprescindible reconocerlo. Las tablas completas están en la sección Verbos.',
     ],
     ex: [
       { s: 'Dante ___ nel 1265. (nascere)', a: ['nacque'], es: 'Dante nació en 1265.' },

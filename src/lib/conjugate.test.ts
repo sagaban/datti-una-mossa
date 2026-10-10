@@ -96,9 +96,30 @@ describe('conjugate', () => {
     expect(new Set(VERBS.map((x) => x.inf)).size).toBe(VERBS.length)
   })
 
+  it('passato remoto', () => {
+    expect(conjugate(v('parlare'), 'passato remoto')).toEqual(['parlai', 'parlasti', 'parlò', 'parlammo', 'parlaste', 'parlarono'])
+    expect(conjugate(v('dormire'), 'passato remoto')).toEqual(['dormii', 'dormisti', 'dormì', 'dormimmo', 'dormiste', 'dormirono'])
+    expect(conjugate(v('credere'), 'passato remoto')[0]).toBe('credei/credetti')
+    expect(conjugate(v('ripetere'), 'passato remoto')[0]).toBe('ripetei')
+    expect(conjugate(v('essere'), 'passato remoto')[2]).toBe('fu')
+    expect(conjugate(v('avere'), 'passato remoto')).toEqual(['ebbi', 'avesti', 'ebbe', 'avemmo', 'aveste', 'ebbero'])
+    expect(conjugate(v('fare'), 'passato remoto')).toEqual(['feci', 'facesti', 'fece', 'facemmo', 'faceste', 'fecero'])
+    expect(conjugate(v('dire'), 'passato remoto')[1]).toBe('dicesti')
+    expect(conjugate(v('venire'), 'passato remoto')[5]).toBe('vennero')
+    expect(conjugate(v('nascere'), 'passato remoto')[2]).toBe('nacque')
+    expect(conjugate(v('tradurre'), 'passato remoto')[3]).toBe('traducemmo')
+    expect(conjugate(v('cercare'), 'passato remoto')[2]).toBe('cercò')
+    expect(conjugate(v('mangiare'), 'passato remoto')[0]).toBe('mangiai')
+    expect(conjugate(v('capire'), 'passato remoto')[2]).toBe('capì')
+    expect(conjugate(v('sedersi'), 'passato remoto')[0]).toBe('mi sedetti')
+    expect(conjugate(v('dare'), 'passato remoto')[0]).toBe('diedi/detti')
+  })
+
   it('expandForms separa la concordancia de género', () => {
     expect(expandForms('sono andato/a')).toEqual(['sono andato', 'sono andata'])
     expect(expandForms('ho mangiato')).toEqual(['ho mangiato'])
+    expect(expandForms('credei/credetti')).toEqual(['credei', 'credetti'])
+    expect(expandForms('ci credemmo')).toEqual(['ci credemmo'])
   })
 
   it('todos los verbos producen 6 formas no vacías en cada tiempo', () => {
