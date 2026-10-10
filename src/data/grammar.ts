@@ -1,3 +1,4 @@
+import { GRAMMAR_B2, GRAMMAR_C1 } from './grammar-advanced'
 import type { Level } from './verbs'
 
 export interface Exercise {
@@ -19,7 +20,7 @@ export interface GrammarTopic {
   ex: Exercise[]
 }
 
-export const GRAMMAR: GrammarTopic[] = [
+const GRAMMAR_BASE: GrammarTopic[] = [
   {
     id: 'articoli-det',
     title: 'Artículos determinados',
@@ -404,3 +405,5 @@ export const GRAMMAR: GrammarTopic[] = [
     ],
   },
 ]
+
+export const GRAMMAR: GrammarTopic[] = [...GRAMMAR_BASE, ...GRAMMAR_B2, ...GRAMMAR_C1]

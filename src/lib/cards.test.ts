@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { GRAMMAR } from '../data/grammar'
+import { LEVELS } from '../data/verbs'
 import { CATALOG, buildPrompt } from './cards'
 
 describe('catálogo', () => {
@@ -21,5 +23,11 @@ describe('catálogo', () => {
     const first = CATALOG.slice(0, 30)
     expect(first.every((c) => c.level === 'A1')).toBe(true)
     expect(new Set(first.map((c) => c.area)).size).toBeGreaterThanOrEqual(3)
+  })
+  it('hay lecciones de gramática en todos los niveles', () => {
+    for (const lv of LEVELS) expect(GRAMMAR.some((g) => g.level === lv), lv).toBe(true)
+  })
+  it('ids de lecciones únicos', () => {
+    expect(new Set(GRAMMAR.map((g) => g.id)).size).toBe(GRAMMAR.length)
   })
 })

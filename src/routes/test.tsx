@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
-import type { Level } from '../data/verbs'
+import { LEVELS, type Level } from '../data/verbs'
 import { VERDICT_MSG, type Verdict, check } from '../lib/answer'
 import { AREA_LABEL, CATALOG, type Area, type CardDef, buildPrompt } from '../lib/cards'
 import { makeDue } from '../lib/store'
@@ -38,10 +38,11 @@ function Test() {
       <div className="stack">
         <h1>Autoevaluación</h1>
         <p className="muted">
-          {SIZE} preguntas mezcladas de vocabulario, verbos, gramática y falsos amigos. Sirve para saber dónde estás y qué
-          reforzar. No afecta tus repasos, salvo que elijas agregar tus errores.
+          {SIZE} preguntas mezcladas de vocabulario, verbos, gramática y falsos amigos (en B2 y C1, por ahora sólo
+          gramática). Sirve para saber dónde estás y qué reforzar. No afecta tus repasos, salvo que elijas agregar tus
+          errores.
         </p>
-        {(['A1', 'A2', 'B1'] as Level[]).map((lv) => (
+        {LEVELS.map((lv) => (
           <button
             key={lv}
             className="btn big"

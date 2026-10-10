@@ -1,7 +1,7 @@
 import { FALSE_FRIENDS } from '../data/falseFriends'
 import { GRAMMAR } from '../data/grammar'
 import { VOCAB } from '../data/vocab'
-import { TENSE_LEVEL, VERBS, type Level } from '../data/verbs'
+import { LEVELS, TENSE_LEVEL, VERBS, type Level } from '../data/verbs'
 import { PERSONS, TENSES, TENSE_LABEL, conjugate, expandForms, type Tense } from './conjugate'
 
 export type Area = 'vocab' | 'verbi' | 'grammatica' | 'falsi'
@@ -48,8 +48,6 @@ export interface Intro {
   speak?: string
 }
 
-const LEVELS: Level[] = ['A1', 'A2', 'B1']
-
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -70,7 +68,7 @@ function vocabEntry(id: string) {
 }
 
 function buildCatalog(): CardDef[] {
-  const byLevel: Record<Level, CardDef[][]> = { A1: [], A2: [], B1: [] }
+  const byLevel = {} as Record<Level, CardDef[][]>
 
   // Cada área es una "cola"; al final se intercalan para que cada día llegue un poco de todo
   for (const level of LEVELS) {

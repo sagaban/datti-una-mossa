@@ -1,6 +1,7 @@
 import type { Tense, Verb } from '../lib/conjugate'
 
-export type Level = 'A1' | 'A2' | 'B1'
+export const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'] as const
+export type Level = (typeof LEVELS)[number]
 
 /** En qué nivel se introduce cada tiempo verbal */
 export const TENSE_LEVEL: Record<Tense, Level> = {
