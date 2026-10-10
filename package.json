@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@netlify/blobs": "11.1.4",
     "@tanstack/react-router": "1.170.42",
     "@tanstack/react-start": "1.168.61",
     "react": "^19.3.0",
@@ -19,6 +20,7 @@
     "ts-fsrs": "^5.4.2"
   },
   "devDependencies": {
+    "@netlify/functions": "6.0.2",
     "@tanstack/router-cli": "^1.167.41",
     "@types/node": "^22",
     "@types/react": "^19.3.0",

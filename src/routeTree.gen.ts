@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImpostazioniRouteImport } from './routes/impostazioni'
 import { Route as ProgressiRouteImport } from './routes/progressi'
 import { Route as RepasoRouteImport } from './routes/repaso'
+import { Route as SincronizarRouteImport } from './routes/sincronizar'
 import { Route as TestRouteImport } from './routes/test'
 import { Route as LezioniIndexRouteImport } from './routes/lezioni/index'
 import { Route as LezioniIdRouteImport } from './routes/lezioni/$id'
@@ -39,6 +40,11 @@ const ProgressiRoute = ProgressiRouteImport.update({
 const RepasoRoute = RepasoRouteImport.update({
   id: '/repaso',
   path: '/repaso',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SincronizarRoute = SincronizarRouteImport.update({
+  id: '/sincronizar',
+  path: '/sincronizar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TestRoute = TestRouteImport.update({
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/impostazioni': typeof ImpostazioniRoute
   '/progressi': typeof ProgressiRoute
   '/repaso': typeof RepasoRoute
+  '/sincronizar': typeof SincronizarRoute
   '/test': typeof TestRoute
   '/lezioni/$id': typeof LezioniIdRoute
   '/verbi/$inf': typeof VerbiInfRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/impostazioni': typeof ImpostazioniRoute
   '/progressi': typeof ProgressiRoute
   '/repaso': typeof RepasoRoute
+  '/sincronizar': typeof SincronizarRoute
   '/test': typeof TestRoute
   '/lezioni/$id': typeof LezioniIdRoute
   '/verbi/$inf': typeof VerbiInfRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/impostazioni': typeof ImpostazioniRoute
   '/progressi': typeof ProgressiRoute
   '/repaso': typeof RepasoRoute
+  '/sincronizar': typeof SincronizarRoute
   '/test': typeof TestRoute
   '/lezioni/$id': typeof LezioniIdRoute
   '/verbi/$inf': typeof VerbiInfRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/impostazioni'
     | '/progressi'
     | '/repaso'
+    | '/sincronizar'
     | '/test'
     | '/lezioni/$id'
     | '/verbi/$inf'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/impostazioni'
     | '/progressi'
     | '/repaso'
+    | '/sincronizar'
     | '/test'
     | '/lezioni/$id'
     | '/verbi/$inf'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/impostazioni'
     | '/progressi'
     | '/repaso'
+    | '/sincronizar'
     | '/test'
     | '/lezioni/$id'
     | '/verbi/$inf'
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   ImpostazioniRoute: typeof ImpostazioniRoute
   ProgressiRoute: typeof ProgressiRoute
   RepasoRoute: typeof RepasoRoute
+  SincronizarRoute: typeof SincronizarRoute
   TestRoute: typeof TestRoute
   LezioniIdRoute: typeof LezioniIdRoute
   VerbiInfRoute: typeof VerbiInfRoute
@@ -201,6 +214,13 @@ declare module '@tanstack/react-router' {
       path: '/repaso'
       fullPath: '/repaso'
       preLoaderRoute: typeof RepasoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sincronizar': {
+      id: '/sincronizar'
+      path: '/sincronizar'
+      fullPath: '/sincronizar'
+      preLoaderRoute: typeof SincronizarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/test': {
@@ -260,6 +280,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImpostazioniRoute: ImpostazioniRoute,
   ProgressiRoute: ProgressiRoute,
   RepasoRoute: RepasoRoute,
+  SincronizarRoute: SincronizarRoute,
   TestRoute: TestRoute,
   LezioniIdRoute: LezioniIdRoute,
   VerbiInfRoute: VerbiInfRoute,

@@ -1,5 +1,6 @@
 import { ClientOnly, HeadContent, Link, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
 import { useEffect } from 'react'
+import { initSync } from '../lib/sync'
 import appCss from '../styles.css?url'
 
 export const Route = createRootRoute({
@@ -53,6 +54,7 @@ function RootLayout() {
       navigator.serviceWorker.register('/sw.js').catch(() => {})
     }
     navigator.storage?.persist?.().catch(() => {})
+    initSync()
   }, [])
 
   return (

@@ -1,16 +1,16 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { AREA_LABEL, type Area } from '../lib/cards'
-import { dueCards, newBudget, streak, today, useData } from '../lib/store'
+import { allDays, dueCards, newBudget, streak, today, useData } from '../lib/store'
 
 export const Route = createFileRoute('/')({ component: Home })
 
 const GREETINGS = ['Ciao!', 'Bentornato!', 'Forza!', 'Dai, si comincia!', 'Eccoti!']
 
 function Home() {
-  const data = useData()
+  useData() // re-render ante cambios del store
   const due = dueCards()
   const fresh = newBudget()
-  const todayLog = data.days[today()]
+  const todayLog = allDays()[today()]
   const s = streak()
   const greeting = GREETINGS[new Date().getDate() % GREETINGS.length]
 

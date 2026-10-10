@@ -1,6 +1,9 @@
 import { useSyncExternalStore } from 'react'
 import { type Card, type Grade, Rating, State, createEmptyCard, fsrs, generatorParameters } from 'ts-fsrs'
 import { CARD_BY_ID, CATALOG, type Area, type CardDef } from './cards'
+import { type DayLog, type SyncPayload, mergePayload, sumDays } from './sync-core'
+
+export type { DayLog }
 
 const KEY = 'datti-una-mossa:v1'
 
@@ -11,12 +14,10 @@ export interface Settings {
   retention: number
 }
 
-export interface DayLog {
-  reviews: number
-  correct: number
-  introduced: number
-  /** segundos de práctica */
-  seconds: number
+export interface SyncState {
+  code: string
+  lastSync?: number
+  lastError?: string
 }
 
 export interface Data {
@@ -25,6 +26,12 @@ export interface Data {
   /** temas/lecciones ya presentados (para no repetir la intro) */
   seen: string[]
   settings: Settings
+  settingsUpdatedAt: number
+  /** identifica este dispositivo en la sincronización */
+  deviceId: string
+  /** estadísticas diarias de los otros dispositivos sincronizados */
+  remoteDays: Record<string, Record<string, DayLog>>
+  sync: SyncState | null
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -34,7 +41,19 @@ const DEFAULT_SETTINGS: Settings = {
   retention: 0.9,
 }
 
-const empty = (): Data => ({ cards: {}, days: {}, seen: [], settings: DEFAULT_SETTINGS })
+const newDeviceId = () =>
+  typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `d-${Date.now()}-${Math.random().toString(36).slice(2)}`
+
+const empty = (): Data => ({
+  cards: {},
+  days: {},
+  seen: [],
+  settings: DEFAULT_SETTINGS,
+  settingsUpdatedAt: 0,
+  deviceId: newDeviceId(),
+  remoteDays: {},
+  sync: null,
+})
 
 export const today = (d = new Date()) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -51,7 +70,12 @@ function load(): Data {
   if (typeof localStorage === 'undefined') return empty()
   try {
     const raw = localStorage.getItem(KEY)
-    return raw ? revive(JSON.parse(raw)) : empty()
+    if (!raw) return empty()
+    const parsed = JSON.parse(raw) as Partial<Data>
+    const d = revive(parsed as Data)
+    // datos de antes de la sincronización: fijar el id de dispositivo ya mismo
+    if (!parsed.deviceId) localStorage.setItem(KEY, JSON.stringify(d))
+    return d
   } catch {
     return empty()
   }
@@ -59,8 +83,9 @@ function load(): Data {
 
 let data: Data = load()
 const listeners = new Set<() => void>()
+const localListeners = new Set<() => void>()
 
-function commit(next: Data) {
+function commit(next: Data, { fromSync = false } = {}) {
   data = next
   try {
     localStorage.setItem(KEY, JSON.stringify(data))
@@ -68,6 +93,13 @@ function commit(next: Data) {
     // almacenamiento lleno o bloqueado: se mantiene en memoria
   }
   listeners.forEach((l) => l())
+  if (!fromSync) localListeners.forEach((l) => l())
+}
+
+/** Cambios hechos en este dispositivo (no los que llegan por sincronización) */
+export function onLocalChange(cb: () => void) {
+  localListeners.add(cb)
+  return () => localListeners.delete(cb)
 }
 
 export function useData(): Data {
@@ -148,7 +180,7 @@ export function makeDue(ids: string[]) {
 }
 
 export function updateSettings(patch: Partial<Settings>) {
-  commit({ ...data, settings: { ...data.settings, ...patch } })
+  commit({ ...data, settings: { ...data.settings, ...patch }, settingsUpdatedAt: Date.now() })
 }
 
 export function exportData(): string {
@@ -161,8 +193,60 @@ export function importData(json: string) {
   commit(revive(parsed))
 }
 
+/** Borra el progreso de este dispositivo y lo desvincula de la sincronización */
 export function resetAll() {
   commit(empty())
+}
+
+// ——— Sincronización ———
+
+export function toPayload(): SyncPayload {
+  return {
+    v: 1,
+    cards: data.cards,
+    seen: data.seen,
+    settings: data.settings as unknown as Record<string, unknown>,
+    settingsUpdatedAt: data.settingsUpdatedAt,
+    devices: { ...data.remoteDays, [data.deviceId]: data.days },
+  }
+}
+
+/** Fusiona lo que llegó del servidor con el estado local actual (que pudo cambiar durante el pedido) */
+export function applyRemote(remote: SyncPayload, sync: Partial<SyncState>) {
+  const merged = mergePayload(toPayload(), remote)
+  const { [data.deviceId]: own = data.days, ...others } = merged.devices
+  const next = revive({
+    ...data,
+    cards: merged.cards as unknown as Record<string, Card>,
+    seen: merged.seen,
+    settings: merged.settings as unknown as Settings,
+    settingsUpdatedAt: merged.settingsUpdatedAt,
+    days: own,
+    remoteDays: others,
+    sync: data.sync ? { ...data.sync, ...sync } : null,
+  })
+  commit(next, { fromSync: true })
+}
+
+export function setSync(sync: SyncState | null) {
+  commit({ ...data, sync }, { fromSync: true })
+}
+
+export function patchSync(patch: Partial<SyncState>) {
+  if (data.sync) commit({ ...data, sync: { ...data.sync, ...patch } }, { fromSync: true })
+}
+
+let daysCache: { src: Data; days: Record<string, DayLog> } | null = null
+
+/** Estadísticas diarias de todos los dispositivos sumadas */
+export function allDays(): Record<string, DayLog> {
+  if (daysCache?.src !== data) {
+    const others = Object.entries(data.remoteDays)
+      .filter(([id]) => id !== data.deviceId)
+      .map(([, d]) => d)
+    daysCache = { src: data, days: sumDays([data.days, ...others]) }
+  }
+  return daysCache.days
 }
 
 // ——— Construcción de sesiones ———
@@ -187,7 +271,8 @@ export function dueCards(now = new Date()): CardDef[] {
 }
 
 export function newBudget(): number {
-  const introduced = data.days[today()]?.introduced ?? 0
+  // el cupo de nuevas es por persona, no por dispositivo
+  const introduced = allDays()[today()]?.introduced ?? 0
   return Math.max(0, data.settings.newPerDay - introduced)
 }
 
@@ -232,8 +317,9 @@ export function streak(): number {
   let n = 0
   const d = new Date()
   // si hoy todavía no practicaste, la racha cuenta desde ayer
-  if (!data.days[today(d)]?.reviews) d.setDate(d.getDate() - 1)
-  while (data.days[today(d)]?.reviews) {
+  const days = allDays()
+  if (!days[today(d)]?.reviews) d.setDate(d.getDate() - 1)
+  while (days[today(d)]?.reviews) {
     n++
     d.setDate(d.getDate() - 1)
   }

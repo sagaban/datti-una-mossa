@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
+import { SyncPanel } from '../components/SyncPanel'
 import { AREA_LABEL, type Area } from '../lib/cards'
 import { canSpeak, speak } from '../lib/speech'
 import { exportData, importData, resetAll, today, updateSettings, useData } from '../lib/store'
@@ -78,9 +79,11 @@ function Settings() {
         </section>
       )}
 
+      <SyncPanel />
+
       <section className="card stack">
         <span>Copia de seguridad</span>
-        <p className="muted small">Tu progreso se guarda sólo en este dispositivo. Exportalo de vez en cuando.</p>
+        <p className="muted small">Sin sincronización, tu progreso se guarda sólo en este dispositivo: exportalo de vez en cuando.</p>
         <div className="btn-row">
           <button className="btn" onClick={download}>
             Exportar
@@ -126,9 +129,14 @@ function Settings() {
             </button>
           </div>
         ) : (
-          <button className="btn danger" onClick={() => setConfirmReset(true)}>
-            Borrar todo el progreso
-          </button>
+          <>
+            <button className="btn danger" onClick={() => setConfirmReset(true)}>
+              Borrar todo el progreso
+            </button>
+            <p className="muted small">
+              Borra el progreso de este dispositivo y lo desvincula de la sincronización. La copia en la nube no se toca.
+            </p>
+          </>
         )}
       </section>
     </div>

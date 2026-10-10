@@ -12,6 +12,7 @@ PWA para repasar italiano en ratos libres, pensada para hispanohablantes. Funcio
 - **Palabras transparentes** (≈ iguales al español y sin trampa de género ni falso amigo): sólo se practican en reconocimiento, no hace falta escribirlas.
 - Pronunciación con la voz italiana del sistema (Web Speech API).
 - Secciones para recorrer vocabulario (con audio y estado de cada palabra), gramática y verbos, con práctica libre.
+- **Sincronización entre dispositivos** sin cuentas: un código aleatorio de 160 bits (o un link) empareja el celular y la compu. El progreso se guarda en Netlify Blobs bajo el hash del código; por tarjeta gana el repaso más reciente y las estadísticas se llevan por dispositivo. Funciona offline y sincroniza al abrir, al volver la conexión, al pasar a segundo plano y después de repasar.
 - Exportar/importar el progreso en JSON.
 
 ## Desarrollo
@@ -34,4 +35,7 @@ TanStack Start en **modo SPA**: el build prerenderiza un shell (`dist/client/ind
 - `src/lib/answer.ts`: corrección de respuestas
 - `src/lib/cards.ts`: catálogo de tarjetas y armado de preguntas
 - `src/lib/store.ts`: estado en localStorage, scheduler FSRS, sesiones y estadísticas
+- `src/lib/sync-core.ts`: fusión y validación de la sincronización (compartido con el servidor)
+- `src/lib/sync.ts`: cuándo sincronizar, en el cliente
+- `netlify/functions/sync.mts`: endpoint `/api/sync` (Netlify Function + Blobs)
 - `src/routes/`: pantallas (file-based routing)

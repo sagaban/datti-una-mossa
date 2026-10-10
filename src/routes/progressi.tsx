@@ -1,24 +1,25 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { AREA_LABEL, type Area } from '../lib/cards'
-import { areaProgress, streak, today, useData } from '../lib/store'
+import { allDays, areaProgress, streak, today, useData } from '../lib/store'
 
 export const Route = createFileRoute('/progressi')({ component: Progress })
 
 function Progress() {
-  const data = useData()
+  useData()
+  const dayLogs = allDays()
   const progress = areaProgress()
   const days = Array.from({ length: 14 }, (_, i) => {
     const d = new Date()
     d.setDate(d.getDate() - (13 - i))
     const key = today(d)
-    return { key, label: d.toLocaleDateString('es', { weekday: 'narrow' }), log: data.days[key] }
+    return { key, label: d.toLocaleDateString('es', { weekday: 'narrow' }), log: dayLogs[key] }
   })
   const max = Math.max(10, ...days.map((d) => d.log?.reviews ?? 0))
 
-  const last30 = Object.entries(data.days).filter(([k]) => k >= today(new Date(Date.now() - 30 * 864e5)))
+  const last30 = Object.entries(dayLogs).filter(([k]) => k >= today(new Date(Date.now() - 30 * 864e5)))
   const reviews = last30.reduce((s, [, d]) => s + d.reviews, 0)
   const correct = last30.reduce((s, [, d]) => s + d.correct, 0)
-  const minutes = Math.round(Object.values(data.days).reduce((s, d) => s + d.seconds, 0) / 60)
+  const minutes = Math.round(Object.values(dayLogs).reduce((s, d) => s + d.seconds, 0) / 60)
 
   return (
     <div className="stack">

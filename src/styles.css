@@ -764,3 +764,23 @@ button {
   margin-left: 6px;
   vertical-align: middle;
 }
+
+/* ——— Sincronización ——— */
+.sync-code {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.95rem;
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  word-break: break-all;
+  user-select: all;
+}
+.pill.sync-ok {
+  background: var(--green-soft);
+  color: var(--green);
+}
+.pill.sync-error {
+  background: var(--red-soft);
+  color: var(--red);
+}
