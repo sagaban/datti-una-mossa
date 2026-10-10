@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Practice } from '../../components/Practice'
 import { SpeakBtn } from '../../components/SpeakBtn'
 import { TENSE_LEVEL, VERBS } from '../../data/verbs'
-import { PERSONS, TENSES, TENSE_ES, TENSE_LABEL, conjugate, expandForms, type Tense } from '../../lib/conjugate'
+import { PERSONS, TENSES, TENSE_ES, TENSE_LABEL, auxOf, conjugate, expandForms, type Tense } from '../../lib/conjugate'
 
 export const Route = createFileRoute('/verbi/$inf')({
   loader: ({ params }) => {
@@ -27,7 +27,7 @@ function VerbPage() {
         {verb.inf} <SpeakBtn text={verb.inf} />
       </h1>
       <p className="muted">
-        {verb.es} · auxiliar <strong>{verb.aux ?? 'avere'}</strong>
+        {verb.es} · auxiliar <strong>{auxOf(verb)}</strong>
       </p>
       {verb.note && <p className="note">💡 {verb.note}</p>}
 

@@ -115,7 +115,8 @@ button {
   font-size: 0.7rem;
   color: var(--muted);
   padding: 4px 8px;
-  min-width: 56px;
+  min-width: 0;
+  flex: 1;
 }
 .tab-icon {
   font-size: 1.3rem;
@@ -721,4 +722,41 @@ button {
   .seg button.on {
     color: #0d1f16;
   }
+}
+
+/* ——— Vocabulario ——— */
+.word-main {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.word-it {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+}
+.word-note {
+  font-size: 0.8rem;
+  color: var(--amber);
+  margin-top: 2px;
+}
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+  margin-top: 7px;
+  vertical-align: middle;
+}
+.muted .dot {
+  margin-top: 0;
+}
+.dot.learning {
+  border-color: var(--amber);
+  background: var(--amber);
+}
+.dot.mature {
+  border-color: var(--green);
+  background: var(--green);
 }

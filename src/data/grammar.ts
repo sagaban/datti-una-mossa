@@ -1,5 +1,6 @@
 import { GRAMMAR_B2, GRAMMAR_C1 } from './grammar-advanced'
-import type { Level } from './verbs'
+import { GRAMMAR_EXTRA } from './grammar-extra'
+import { LEVELS, type Level } from './verbs'
 
 export interface Exercise {
   /** Oración con "___" donde va la respuesta */
@@ -406,4 +407,7 @@ const GRAMMAR_BASE: GrammarTopic[] = [
   },
 ]
 
-export const GRAMMAR: GrammarTopic[] = [...GRAMMAR_BASE, ...GRAMMAR_B2, ...GRAMMAR_C1]
+// sort estable: dentro de cada nivel se respeta el orden de cada archivo
+export const GRAMMAR: GrammarTopic[] = [...GRAMMAR_BASE, ...GRAMMAR_B2, ...GRAMMAR_C1, ...GRAMMAR_EXTRA].sort(
+  (a, b) => LEVELS.indexOf(a.level) - LEVELS.indexOf(b.level),
+)

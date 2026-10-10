@@ -8,8 +8,9 @@ PWA para repasar italiano en ratos libres, pensada para hispanohablantes. Funcio
 - **Primero ves, después recordás**: lo nuevo se presenta y se pregunta unas tarjetas más tarde, en la misma sesión.
 - **Autoevaluación** en cada respuesta (Otra vez / Difícil / Bien / Fácil, con el intervalo resultante). En las respuestas escritas la app corrige y sugiere una nota: tolera acentos, artículos faltantes y errores de tipeo.
 - **Test por nivel** (A1 a C1): 20 preguntas mezcladas, resultado por área y opción de mandar los errores al repaso.
-- **Contenido**: ~340 palabras por temas, 62 verbos en 6 tiempos (conjugador con reglas + irregulares), 36 lecciones de gramática de A1 a C1 con 248 ejercicios y 39 falsos amigos español–italiano.
+- **Contenido**: ~420 palabras en 20 temas (A1–C1, con expresiones idiomáticas), 136 verbos en 10 tiempos incluidos los reflexivos (conjugador con reglas + irregulares), 52 lecciones de gramática de A1 a C1 con 352 ejercicios y 39 falsos amigos español–italiano.
 - Pronunciación con la voz italiana del sistema (Web Speech API).
+- Secciones para recorrer vocabulario (con audio y estado de cada palabra), gramática y verbos, con práctica libre.
 - Exportar/importar el progreso en JSON.
 
 ## Desarrollo

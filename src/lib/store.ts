@@ -142,7 +142,7 @@ export function makeDue(ids: string[]) {
   const cards = { ...data.cards }
   for (const id of ids) {
     const c = cards[id]
-    cards[id] = c ? { ...c, due: now } : scheduler().next(createEmptyCard(now), now, Rating.Again).card
+    cards[id] = c ? { ...c, due: now } : createEmptyCard(now)
   }
   commit({ ...data, cards })
 }

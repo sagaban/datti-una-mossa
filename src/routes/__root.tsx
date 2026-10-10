@@ -40,6 +40,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
 const NAV = [
   { to: '/', label: 'Inicio', icon: '⌂' },
+  { to: '/vocab', label: 'Palabras', icon: 'Aa' },
   { to: '/lezioni', label: 'Gramática', icon: '¶' },
   { to: '/verbi', label: 'Verbos', icon: '≡' },
   { to: '/test', label: 'Test', icon: '✓' },

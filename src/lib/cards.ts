@@ -58,7 +58,7 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 /** "la madre / la mamma" → ["la madre", "la mamma"] */
-const alts = (s: string) => s.split(' / ').map((x) => x.trim())
+export const alts = (s: string) => s.split(' / ').map((x) => x.trim())
 
 function vocabEntry(id: string) {
   const [, themeId, idx] = id.split(':')

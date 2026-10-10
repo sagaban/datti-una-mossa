@@ -53,6 +53,49 @@ describe('conjugate', () => {
     expect(conjugate(v('credere'), 'passato prossimo')[0]).toBe('ho creduto')
   })
 
+  it('reflexivos', () => {
+    expect(conjugate(v('alzarsi'), 'presente')).toEqual(['mi alzo', 'ti alzi', 'si alza', 'ci alziamo', 'vi alzate', 'si alzano'])
+    expect(conjugate(v('alzarsi'), 'passato prossimo')[0]).toBe('mi sono alzato/a')
+    expect(conjugate(v('vestirsi'), 'passato prossimo')[3]).toBe('ci siamo vestiti/e')
+    expect(conjugate(v('sedersi'), 'presente')[0]).toBe('mi siedo')
+    expect(conjugate(v('trasferirsi'), 'presente')[1]).toBe('ti trasferisci')
+    expect(conjugate(v('annoiarsi'), 'presente')[1]).toBe('ti annoi')
+    expect(conjugate(v('svegliarsi'), 'futuro')[0]).toBe('mi sveglierò')
+  })
+
+  it('tiempos compuestos B2', () => {
+    expect(conjugate(v('mangiare'), 'trapassato prossimo')[0]).toBe('avevo mangiato')
+    expect(conjugate(v('andare'), 'trapassato prossimo')[5]).toBe('erano andati/e')
+    expect(conjugate(v('finire'), 'futuro anteriore')[3]).toBe('avremo finito')
+    expect(conjugate(v('venire'), 'condizionale passato')[2]).toBe('sarebbe venuto/a')
+    expect(conjugate(v('dire'), 'condizionale passato')[0]).toBe('avrei detto')
+  })
+
+  it('congiuntivo imperfetto', () => {
+    expect(conjugate(v('parlare'), 'congiuntivo imperfetto')).toEqual(['parlassi', 'parlassi', 'parlasse', 'parlassimo', 'parlaste', 'parlassero'])
+    expect(conjugate(v('essere'), 'congiuntivo imperfetto')[2]).toBe('fosse')
+    expect(conjugate(v('fare'), 'congiuntivo imperfetto')[0]).toBe('facessi')
+    expect(conjugate(v('dare'), 'congiuntivo imperfetto')[0]).toBe('dessi')
+    expect(conjugate(v('stare'), 'congiuntivo imperfetto')[3]).toBe('stessimo')
+    expect(conjugate(v('dire'), 'congiuntivo imperfetto')[5]).toBe('dicessero')
+    expect(conjugate(v('avere'), 'congiuntivo imperfetto')[0]).toBe('avessi')
+    expect(conjugate(v('tradurre'), 'congiuntivo imperfetto')[2]).toBe('traducesse')
+    expect(conjugate(v('capire'), 'congiuntivo imperfetto')[0]).toBe('capissi')
+  })
+
+  it('irregulares nuevos', () => {
+    expect(conjugate(v('salire'), 'presente')[0]).toBe('salgo')
+    expect(conjugate(v('tradurre'), 'imperfetto')[0]).toBe('traducevo')
+    expect(conjugate(v('tradurre'), 'futuro')[0]).toBe('tradurrò')
+    expect(conjugate(v('cadere'), 'condizionale')[0]).toBe('cadrei')
+    expect(conjugate(v('nascere'), 'passato prossimo')[2]).toBe('è nato/a')
+    expect(conjugate(v('dimenticare'), 'presente')[1]).toBe('dimentichi')
+  })
+
+  it('verbos sin duplicados', () => {
+    expect(new Set(VERBS.map((x) => x.inf)).size).toBe(VERBS.length)
+  })
+
   it('expandForms separa la concordancia de género', () => {
     expect(expandForms('sono andato/a')).toEqual(['sono andato', 'sono andata'])
     expect(expandForms('ho mangiato')).toEqual(['ho mangiato'])

@@ -18,6 +18,8 @@ import { Route as LezioniIndexRouteImport } from './routes/lezioni/index'
 import { Route as LezioniIdRouteImport } from './routes/lezioni/$id'
 import { Route as VerbiIndexRouteImport } from './routes/verbi/index'
 import { Route as VerbiInfRouteImport } from './routes/verbi/$inf'
+import { Route as VocabIndexRouteImport } from './routes/vocab/index'
+import { Route as VocabIdRouteImport } from './routes/vocab/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +66,16 @@ const VerbiInfRoute = VerbiInfRouteImport.update({
   path: '/verbi/$inf',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VocabIndexRoute = VocabIndexRouteImport.update({
+  id: '/vocab/',
+  path: '/vocab/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VocabIdRoute = VocabIdRouteImport.update({
+  id: '/vocab/$id',
+  path: '/vocab/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,8 +85,10 @@ export interface FileRoutesByFullPath {
   '/test': typeof TestRoute
   '/lezioni/$id': typeof LezioniIdRoute
   '/verbi/$inf': typeof VerbiInfRoute
+  '/vocab/$id': typeof VocabIdRoute
   '/lezioni/': typeof LezioniIndexRoute
   '/verbi/': typeof VerbiIndexRoute
+  '/vocab/': typeof VocabIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -84,8 +98,10 @@ export interface FileRoutesByTo {
   '/test': typeof TestRoute
   '/lezioni/$id': typeof LezioniIdRoute
   '/verbi/$inf': typeof VerbiInfRoute
+  '/vocab/$id': typeof VocabIdRoute
   '/lezioni': typeof LezioniIndexRoute
   '/verbi': typeof VerbiIndexRoute
+  '/vocab': typeof VocabIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -96,8 +112,10 @@ export interface FileRoutesById {
   '/test': typeof TestRoute
   '/lezioni/$id': typeof LezioniIdRoute
   '/verbi/$inf': typeof VerbiInfRoute
+  '/vocab/$id': typeof VocabIdRoute
   '/lezioni/': typeof LezioniIndexRoute
   '/verbi/': typeof VerbiIndexRoute
+  '/vocab/': typeof VocabIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -109,8 +127,10 @@ export interface FileRouteTypes {
     | '/test'
     | '/lezioni/$id'
     | '/verbi/$inf'
+    | '/vocab/$id'
     | '/lezioni/'
     | '/verbi/'
+    | '/vocab/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -120,8 +140,10 @@ export interface FileRouteTypes {
     | '/test'
     | '/lezioni/$id'
     | '/verbi/$inf'
+    | '/vocab/$id'
     | '/lezioni'
     | '/verbi'
+    | '/vocab'
   id:
     | '__root__'
     | '/'
@@ -131,8 +153,10 @@ export interface FileRouteTypes {
     | '/test'
     | '/lezioni/$id'
     | '/verbi/$inf'
+    | '/vocab/$id'
     | '/lezioni/'
     | '/verbi/'
+    | '/vocab/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -143,8 +167,10 @@ export interface RootRouteChildren {
   TestRoute: typeof TestRoute
   LezioniIdRoute: typeof LezioniIdRoute
   VerbiInfRoute: typeof VerbiInfRoute
+  VocabIdRoute: typeof VocabIdRoute
   LezioniIndexRoute: typeof LezioniIndexRoute
   VerbiIndexRoute: typeof VerbiIndexRoute
+  VocabIndexRoute: typeof VocabIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +238,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerbiInfRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vocab/': {
+      id: '/vocab/'
+      path: '/vocab'
+      fullPath: '/vocab/'
+      preLoaderRoute: typeof VocabIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vocab/$id': {
+      id: '/vocab/$id'
+      path: '/vocab/$id'
+      fullPath: '/vocab/$id'
+      preLoaderRoute: typeof VocabIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -223,8 +263,10 @@ const rootRouteChildren: RootRouteChildren = {
   TestRoute: TestRoute,
   LezioniIdRoute: LezioniIdRoute,
   VerbiInfRoute: VerbiInfRoute,
+  VocabIdRoute: VocabIdRoute,
   LezioniIndexRoute: LezioniIndexRoute,
   VerbiIndexRoute: VerbiIndexRoute,
+  VocabIndexRoute: VocabIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
