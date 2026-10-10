@@ -24,7 +24,7 @@ pnpm build      # dist/client: sitio estático + service worker
 pnpm preview
 ```
 
-TanStack Start en **modo SPA**: el build prerenderiza un shell (`dist/client/index.html`) y `scripts/sw.mjs` genera el service worker con Workbox. Para publicarlo alcanza con cualquier hosting estático que reescriba las rutas desconocidas a `/index.html` (Netlify, Vercel, Cloudflare Pages).
+TanStack Start en **modo SPA**: el build prerenderiza un shell (`dist/client/index.html`) y `scripts/sw.mjs` genera el service worker con Workbox. Se publica en Netlify (`netlify.toml`): build `pnpm build`, carpeta `dist/client` y redirección de todas las rutas a `/index.html`.
 
 ## Estructura
 
