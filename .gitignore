@@ -1,0 +1,12 @@
+node_modules
+dist
+dev-dist
+package-lock.json
+*.log
+.DS_Store
+.tanstack
+.output
+.nitro
+dist-ssr
+*.local
+.env
