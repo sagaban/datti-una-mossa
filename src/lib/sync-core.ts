@@ -25,6 +25,12 @@ export interface CardState {
   last_review?: string | Date
 }
 
+/**
+ * Un repaso: [id de tarjeta, momento (ms), nota 1–4, estado FSRS antes del repaso 0–3, segundos].
+ * Es lo que necesita el optimizador de FSRS para ajustar los parámetros a cada persona.
+ */
+export type ReviewLogEntry = [cardId: string, time: number, rating: number, state: number, seconds: number]
+
 export interface SyncPayload {
   v: 1
   cards: Record<string, CardState>
@@ -33,6 +39,7 @@ export interface SyncPayload {
   settingsUpdatedAt: number
   /** estadísticas diarias por dispositivo: así dos dispositivos no se pisan ni se suman doble */
   devices: Record<string, Record<string, DayLog>>
+  logs: ReviewLogEntry[]
 }
 
 // ——— Código de sincronización ———
@@ -74,7 +81,7 @@ export async function hashCode(code: string): Promise<string> {
 
 // ——— Validación de lo que llega por la red ———
 
-const LIMITS = { cards: 50_000, seen: 5_000, devices: 20, days: 5_000 }
+const LIMITS = { cards: 50_000, seen: 5_000, devices: 20, days: 5_000, logs: 200_000 }
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 const ID_RE = /^[\w:’'\-. /àèéìòù]{1,200}$/
 
@@ -108,6 +115,18 @@ function cleanDays(x: unknown): Record<string, DayLog> {
   return out
 }
 
+function cleanLogs(x: unknown): ReviewLogEntry[] {
+  if (!Array.isArray(x)) return []
+  const out: ReviewLogEntry[] = []
+  for (const e of x.slice(-LIMITS.logs)) {
+    if (!Array.isArray(e) || typeof e[0] !== 'string' || !ID_RE.test(e[0])) continue
+    const [id, t, rating, state, seconds] = e
+    if (!Number.isFinite(t) || ![1, 2, 3, 4].includes(rating) || ![0, 1, 2, 3].includes(state)) continue
+    out.push([id, t, rating, state, num(seconds)])
+  }
+  return out
+}
+
 /** Sanea un payload que viene de afuera; descarta todo lo que no tenga la forma esperada */
 export function parsePayload(x: unknown): SyncPayload {
   if (!isObj(x) || x.v !== 1) throw new Error('Formato de sincronización inválido')
@@ -131,7 +150,17 @@ export function parsePayload(x: unknown): SyncPayload {
     settings: isObj(x.settings) ? x.settings : {},
     settingsUpdatedAt: num(x.settingsUpdatedAt),
     devices,
+    logs: cleanLogs(x.logs),
   }
+}
+
+/** Unión de historiales sin duplicados (mismo repaso = misma tarjeta y mismo momento), por fecha */
+export function mergeLogs(a: ReviewLogEntry[], b: ReviewLogEntry[]): ReviewLogEntry[] {
+  if (!b.length) return a
+  const seen = new Set(a.map((e) => `${e[0]}|${e[1]}`))
+  const extra = b.filter((e) => !seen.has(`${e[0]}|${e[1]}`))
+  if (!extra.length) return a
+  return [...a, ...extra].sort((x, y) => x[1] - y[1]).slice(-LIMITS.logs)
 }
 
 // ——— Fusión ———
@@ -179,6 +208,7 @@ export function mergePayload(a: SyncPayload, b: SyncPayload): SyncPayload {
     settings: newerSettings.settings,
     settingsUpdatedAt: newerSettings.settingsUpdatedAt,
     devices,
+    logs: mergeLogs(a.logs, b.logs),
   }
 }
 

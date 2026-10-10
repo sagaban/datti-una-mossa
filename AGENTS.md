@@ -40,7 +40,7 @@ pnpm content:lock # regenera src/data/content-lock.json (sólo tras corregir ent
 
 ## Deploy
 
-Cada push a `main` se publica solo en Netlify (repo vinculado; config en `netlify.toml`: build `pnpm build`, publish `dist/client`, redirección SPA `/* → /index.html`, `sw.js` con `no-cache`). Para probar sin tocar producción: `netlify deploy --build`, que crea un deploy draft con función y Blobs reales.
+Cada push a `main` se publica solo en Netlify (repo vinculado; config en `netlify.toml`: build `pnpm test && pnpm build` (si falla un test no se publica), publish `dist/client`, redirección SPA `/* → /index.html`, `sw.js` con `no-cache`). Para probar sin tocar producción: `netlify deploy --build`, que crea un deploy draft con función y Blobs reales.
 
 ⚠️ Las funciones y deploys draft usan el **mismo store de Blobs que producción**. Si probás la API, usá códigos aleatorios y borralos después (`DELETE /api/sync`).
 
@@ -98,6 +98,7 @@ Por eso:
 
 - `sync-core.ts` no debe importar nada del navegador ni de la app: lo usa la Netlify Function.
 - Fusión: **por tarjeta gana el `last_review` más reciente**. Las estadísticas diarias se guardan **por dispositivo** (`devices[deviceId][fecha]`) y se fusionan con `max`, nunca sumando: así sincronizar dos veces no duplica. `allDays()` en el store suma los dispositivos para mostrar.
+- El historial de repasos (`data.logs`: `[cardId, ms, nota, estadoPrevio, segundos]`) también se sincroniza, como unión sin duplicados por `cardId|ms`. Sirve para optimizar los parámetros de FSRS más adelante. Hay un tope de 200.000 entradas; con el límite de 4 MB por sincronización alcanza para años, pero si crece mucho habrá que compactarlo.
 - Si agregás campos a `Data` que deban viajar entre dispositivos, sumalos a `SyncPayload`, `parsePayload` (saneo), `mergePayload`, `toPayload` y `applyRemote`, con tests.
 - Los commits locales del usuario llaman a `onLocalChange` (dispara la sync con debounce). Los que vienen de la sync usan `commit(…, { fromSync: true })` para no entrar en loop.
 - El servidor guarda bajo `sha256(código)` y nunca el código. El código viaja en el header `x-sync-code`, y en los links va en el `#` (no se manda al servidor).
@@ -116,6 +117,12 @@ Los verbos se declaran en `data/verbs.ts`; la lógica está en `lib/conjugate.ts
 - `forms`: tablas completas por tiempo
 
 Los reflexivos se detectan por terminar en `-si`. Las formas con `/` indican variantes: `andato/a` es concordancia de género y `credei/credetti` son alternativas, y `expandForms` las separa. Cada verbo o irregularidad nueva lleva su test en `conjugate.test.ts`.
+
+### 4. Sesiones
+
+- **Tarjetas nuevas:** salen de `CATALOG` (intercalado por área, nivel por nivel) empezando en `settings.startLevel`; los niveles anteriores quedan al final. El cupo `newPerDay` es por persona: se suma entre dispositivos.
+- **Repasos:** se ordenan por vencimiento (los más atrasados primero) y se cortan en `settings.maxReviews` por día (0 = sin límite).
+- **Atraso:** si quedan pendientes que no entran hoy, las nuevas se pausan (`buildSession`), salvo pedido explícito (`extraNew`).
 
 ## Convenciones de contenido
 

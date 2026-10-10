@@ -784,3 +784,10 @@ button {
   background: var(--red-soft);
   color: var(--red);
 }
+.level-up {
+  margin-top: 12px;
+  width: 100%;
+}
+.onboarding .option strong {
+  font-family: var(--serif);
+}

@@ -1,14 +1,18 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { AREA_LABEL, type Area } from '../lib/cards'
-import { allDays, dueCards, newBudget, streak, today, useData } from '../lib/store'
+import type { Level } from '../data/verbs'
+import { allDays, dueCards, newBudget, reviewsLeft, streak, today, updateSettings, useData } from '../lib/store'
 
 export const Route = createFileRoute('/')({ component: Home })
 
 const GREETINGS = ['Ciao!', 'Bentornato!', 'Forza!', 'Dai, si comincia!', 'Eccoti!']
 
 function Home() {
-  useData() // re-render ante cambios del store
+  const { settings, cards } = useData()
   const due = dueCards()
+  const left = reviewsLeft()
+  const toReview = Math.min(due.length, left)
+  const capped = due.length > left
   const fresh = newBudget()
   const todayLog = allDays()[today()]
   const s = streak()
@@ -43,10 +47,16 @@ function Home() {
         </div>
       </section>
 
+      {!settings.onboarded && Object.keys(cards).length === 0 && <Onboarding />}
+
       <section className="card hero">
-        <h2>{due.length ? `${due.length} para repasar` : 'Al día con los repasos'}</h2>
+        <h2>{toReview ? `${toReview} para repasar` : capped ? 'Tope diario cumplido' : 'Al día con los repasos'}</h2>
         <p className="muted">
-          {fresh > 0 ? `+ ${fresh} tarjetas nuevas disponibles hoy` : 'Ya viste todas las nuevas de hoy'}
+          {capped
+            ? `${due.length - toReview} quedan para mañana. Las tarjetas nuevas se pausan hasta que te pongas al día.`
+            : fresh > 0
+              ? `+ ${fresh} tarjetas nuevas disponibles hoy`
+              : 'Ya viste todas las nuevas de hoy'}
         </p>
         <div className="btn-col">
           <Link to="/repaso" search={{ max: 12 }} className="btn primary big">
@@ -83,5 +93,36 @@ function Home() {
         </p>
       </section>
     </div>
+  )
+}
+
+const LEVEL_OPTIONS: { level: Level; label: string; hint: string }[] = [
+  { level: 'A1', label: 'Empiezo de cero', hint: 'Saludos, números, lo básico' },
+  { level: 'A2', label: 'Sé lo básico', hint: 'Me presento y entiendo frases simples' },
+  { level: 'B1', label: 'Me defiendo', hint: 'Converso de temas cotidianos' },
+  { level: 'B2', label: 'Nivel avanzado', hint: 'Leo y hablo con soltura' },
+]
+
+/** Primera visita: elegir desde qué nivel arrancan las tarjetas nuevas */
+function Onboarding() {
+  return (
+    <section className="card stack onboarding">
+      <h2>¿Cuánto italiano sabés?</h2>
+      <p className="muted small">
+        Las tarjetas nuevas arrancan desde ese nivel. Lo anterior no se pierde: queda para más adelante. Lo podés cambiar en
+        Ajustes.
+      </p>
+      <div className="options">
+        {LEVEL_OPTIONS.map((o) => (
+          <button key={o.level} className="option" onClick={() => updateSettings({ startLevel: o.level, onboarded: true })}>
+            <strong>{o.label}</strong> <span className="pill small">{o.level}</span>
+            <div className="muted small">{o.hint}</div>
+          </button>
+        ))}
+      </div>
+      <Link to="/test" className="btn ghost">
+        No sé: hacer un test de nivel
+      </Link>
+    </section>
   )
 }

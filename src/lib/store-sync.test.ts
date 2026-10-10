@@ -10,6 +10,7 @@ const remote = (p: Partial<SyncPayload>): SyncPayload => ({
   settings: {},
   settingsUpdatedAt: 0,
   devices: {},
+  logs: [],
   ...p,
 })
 

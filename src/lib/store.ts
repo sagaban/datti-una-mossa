@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from 'react'
 import { type Card, type Grade, Rating, State, createEmptyCard, fsrs, generatorParameters } from 'ts-fsrs'
 import { CARD_BY_ID, CATALOG, type Area, type CardDef } from './cards'
-import { type DayLog, type SyncPayload, mergePayload, sumDays } from './sync-core'
+import { LEVELS, type Level } from '../data/verbs'
+import { type DayLog, type ReviewLogEntry, type SyncPayload, mergeLogs, mergePayload, sumDays } from './sync-core'
 
 export type { DayLog }
 
@@ -9,6 +10,12 @@ const KEY = 'datti-una-mossa:v1'
 
 export interface Settings {
   newPerDay: number
+  /** tope de repasos por día (0 = sin límite); se priorizan los más atrasados */
+  maxReviews: number
+  /** las tarjetas nuevas empiezan en este nivel; las de niveles anteriores quedan para después */
+  startLevel: Level
+  /** ya eligió su nivel inicial */
+  onboarded: boolean
   areas: Record<Area, boolean>
   autoSpeak: boolean
   retention: number
@@ -32,10 +39,15 @@ export interface Data {
   /** estadísticas diarias de los otros dispositivos sincronizados */
   remoteDays: Record<string, Record<string, DayLog>>
   sync: SyncState | null
+  /** historial de repasos (para optimizar FSRS con los datos propios) */
+  logs: ReviewLogEntry[]
 }
 
 const DEFAULT_SETTINGS: Settings = {
   newPerDay: 10,
+  maxReviews: 150,
+  startLevel: 'A1',
+  onboarded: false,
   areas: { vocab: true, verbi: true, grammatica: true, falsi: true },
   autoSpeak: false,
   retention: 0.9,
@@ -53,6 +65,7 @@ const empty = (): Data => ({
   deviceId: newDeviceId(),
   remoteDays: {},
   sync: null,
+  logs: [],
 })
 
 export const today = (d = new Date()) =>
@@ -129,9 +142,11 @@ export function review(id: string, grade: Grade, seconds: number) {
   const prev = data.cards[id]
   const card = prev ?? createEmptyCard(now)
   const { card: next } = scheduler().next(card, now, grade)
+  const log: ReviewLogEntry = [id, now.getTime(), grade, card.state, seconds]
   commit({
     ...data,
     cards: { ...data.cards, [id]: next },
+    logs: [...data.logs, log],
     days: bumpDay({ reviews: 1, correct: grade === Rating.Again ? 0 : 1, introduced: prev ? 0 : 1, seconds }),
   })
   return next
@@ -208,6 +223,7 @@ export function toPayload(): SyncPayload {
     settings: data.settings as unknown as Record<string, unknown>,
     settingsUpdatedAt: data.settingsUpdatedAt,
     devices: { ...data.remoteDays, [data.deviceId]: data.days },
+    logs: data.logs,
   }
 }
 
@@ -223,6 +239,7 @@ export function applyRemote(remote: SyncPayload, sync: Partial<SyncState>) {
     settingsUpdatedAt: merged.settingsUpdatedAt,
     days: own,
     remoteDays: others,
+    logs: mergeLogs(data.logs, merged.logs),
     sync: data.sync ? { ...data.sync, ...sync } : null,
   })
   commit(next, { fromSync: true })
@@ -276,9 +293,17 @@ export function newBudget(): number {
   return Math.max(0, data.settings.newPerDay - introduced)
 }
 
+/** Catálogo con los niveles desde el inicial primero y los anteriores al final (no se pierden) */
+function orderedCatalog(): CardDef[] {
+  const start = LEVELS.indexOf(data.settings.startLevel)
+  if (start <= 0) return CATALOG
+  const isLower = (d: CardDef) => LEVELS.indexOf(d.level) < start
+  return [...CATALOG.filter((d) => !isLower(d)), ...CATALOG.filter(isLower)]
+}
+
 export function nextNewCards(limit: number, area?: Area): CardDef[] {
   const out: CardDef[] = []
-  for (const def of CATALOG) {
+  for (const def of orderedCatalog()) {
     if (out.length >= limit) break
     if (data.cards[def.id] || !enabled(def) || !unlocked(def)) continue
     if (area && def.area !== area) continue
@@ -292,12 +317,23 @@ export interface SessionItem {
   isNew: boolean
 }
 
-export function buildSession(opts: { max?: number; area?: Area; extraNew?: number }): SessionItem[] {
+/** Repasos que quedan hoy según el tope diario (Infinity si no hay tope) */
+export function reviewsLeft(): number {
+  const max = data.settings.maxReviews
+  if (!max) return Infinity
+  return Math.max(0, max - (allDays()[today()]?.reviews ?? 0))
+}
+
+export function buildSession(opts: { max?: number; area?: Area; extraNew?: number; extraReviews?: number }): SessionItem[] {
+  // dueCards viene ordenado por vencimiento: los más atrasados primero
   let due = dueCards()
   if (opts.area) due = due.filter((d) => d.area === opts.area)
-  const budget = newBudget() + (opts.extraNew ?? 0)
   const max = opts.max ?? Infinity
-  const dueTake = due.slice(0, max)
+  const allowed = reviewsLeft() + (opts.extraReviews ?? 0)
+  const dueTake = due.slice(0, Math.min(max, allowed))
+  // con repasos atrasados que no entran hoy, sumar nuevas sólo agranda la pila: se pausan (salvo pedido explícito)
+  const backlog = due.length > allowed
+  const budget = backlog ? (opts.extraNew ?? 0) : newBudget() + (opts.extraNew ?? 0)
   const fresh = nextNewCards(Math.min(budget, Math.max(0, max - dueTake.length)), opts.area)
 
   // intercalar: una nueva cada ~3 repasos

@@ -5,12 +5,23 @@ import { VERDICT_MSG, type Verdict, check } from '../lib/answer'
 import { type Area, type Prompt, buildIntro, buildPrompt } from '../lib/cards'
 import { SpeakBtn } from '../components/SpeakBtn'
 import { speak } from '../lib/speech'
-import { type SessionItem, addSeconds, buildSession, getData, markSeen, previewIntervals, review } from '../lib/store'
+import {
+  type SessionItem,
+  addSeconds,
+  buildSession,
+  dueCards,
+  getData,
+  markSeen,
+  previewIntervals,
+  review,
+  reviewsLeft,
+} from '../lib/store'
 
 interface Search {
   max?: number
   area?: Area
   extra?: number
+  extraReviews?: number
 }
 
 export const Route = createFileRoute('/repaso')({
@@ -18,6 +29,7 @@ export const Route = createFileRoute('/repaso')({
     max: typeof s.max === 'number' ? s.max : undefined,
     area: ['vocab', 'verbi', 'grammatica', 'falsi'].includes(s.area as string) ? (s.area as Area) : undefined,
     extra: typeof s.extra === 'number' ? s.extra : undefined,
+    extraReviews: typeof s.extraReviews === 'number' ? s.extraReviews : undefined,
   }),
   component: Review,
 })
@@ -49,7 +61,7 @@ const GRADE_LABEL: Record<Grade, string> = {
 let keySeq = 0
 
 function makeQueue(search: Search): QueueItem[] {
-  return buildSession({ max: search.max, area: search.area, extraNew: search.extra }).map((it) => ({
+  return buildSession({ max: search.max, area: search.area, extraNew: search.extra, extraReviews: search.extraReviews }).map((it) => ({
     ...it,
     key: keySeq++,
     requeues: 0,
@@ -63,14 +75,18 @@ function Review() {
   const total = useRef(queue.length)
   const current = queue[0]
 
-  const restart = () => {
-    const q = makeQueue({ max: 12, area: search.area })
+  const restart = (extraReviews?: number) => {
+    const q = makeQueue({ max: extraReviews ?? 12, area: search.area, extraReviews })
     total.current = q.length
     setStats({ done: 0, correct: 0, seconds: 0 })
     setQueue(q)
   }
 
-  if (!current) return <Summary stats={stats} empty={total.current === 0} onRestart={restart} />
+  if (!current) {
+    // hay pendientes pero se llegó al tope diario
+    const capped = reviewsLeft() === 0 && dueCards().some((d) => !search.area || d.area === search.area)
+    return <Summary stats={stats} empty={total.current === 0} capped={capped} onRestart={restart} />
+  }
 
   const finish = (grade: Grade | null, seconds: number) => {
     const rest = queue.slice(1)
@@ -331,12 +347,31 @@ function AccentBar({ onInsert }: { onInsert: (c: string) => void }) {
 function Summary({
   stats,
   empty,
+  capped,
   onRestart,
 }: {
   stats: { done: number; correct: number; seconds: number }
   empty: boolean
-  onRestart: () => void
+  capped: boolean
+  onRestart: (extraReviews?: number) => void
 }) {
+  if (empty && capped) {
+    return (
+      <div className="card center stack">
+        <h2>Tope diario cumplido 💪</h2>
+        <p className="muted">
+          Llegaste al límite de {getData().settings.maxReviews} repasos de hoy. Lo que queda vuelve mañana, empezando por lo más
+          atrasado. Podés cambiar el límite en Ajustes.
+        </p>
+        <button className="btn primary" onClick={() => onRestart(20)}>
+          Repasar 20 más igual
+        </button>
+        <Link to="/" className="btn ghost">
+          Volver
+        </Link>
+      </div>
+    )
+  }
   if (empty) {
     return (
       <div className="card center stack">
@@ -373,7 +408,7 @@ function Summary({
           <span>min</span>
         </div>
       </div>
-      <button className="btn primary" onClick={onRestart}>
+      <button className="btn primary" onClick={() => onRestart()}>
         Otra ronda
       </button>
       <Link to="/" className="btn">

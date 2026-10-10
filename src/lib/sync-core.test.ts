@@ -30,6 +30,7 @@ const payload = (p: Partial<SyncPayload>): SyncPayload => ({
   settings: {},
   settingsUpdatedAt: 0,
   devices: {},
+  logs: [],
   ...p,
 })
 
@@ -110,5 +111,17 @@ describe('parsePayload', () => {
     expect(Object.keys(p.devices)).toEqual(['cel'])
     expect(p.devices.cel['2026-10-10']).toEqual({ reviews: 3, correct: 0, introduced: 0, seconds: 0 })
     expect(p.settingsUpdatedAt).toBe(0)
+  })
+})
+
+describe('historial de repasos', () => {
+  it('une historiales de dos dispositivos sin duplicar y en orden', () => {
+    const a = payload({ logs: [['x', 100, 3, 0, 5], ['y', 300, 1, 2, 4]] })
+    const b = payload({ logs: [['x', 100, 3, 0, 5], ['z', 200, 4, 0, 2]] })
+    expect(mergePayload(a, b).logs.map((e) => e[0])).toEqual(['x', 'z', 'y'])
+  })
+  it('descarta entradas inválidas', () => {
+    const p = parsePayload({ v: 1, logs: [['x', 1, 3, 0, 5], ['x', 'nope', 3, 0, 5], ['x', 2, 9, 0, 5], [42, 3, 3, 0, 1]] })
+    expect(p.logs).toEqual([['x', 1, 3, 0, 5]])
   })
 })

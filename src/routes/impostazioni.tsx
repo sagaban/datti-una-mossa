@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 import { SyncPanel } from '../components/SyncPanel'
+import { LEVELS } from '../data/verbs'
 import { AREA_LABEL, type Area } from '../lib/cards'
 import { canSpeak, speak } from '../lib/speech'
 import { exportData, importData, resetAll, today, updateSettings, useData } from '../lib/store'
@@ -34,17 +35,59 @@ function Settings() {
           <span>Tarjetas nuevas por día</span>
           <div className="seg">
             {[5, 10, 15, 20, 30].map((n) => (
-              <button key={n} className={settings.newPerDay === n ? 'on' : ''} onClick={() => updateSettings({ newPerDay: n })}>
+              <button
+                key={n}
+                aria-pressed={settings.newPerDay === n}
+                className={settings.newPerDay === n ? 'on' : ''}
+                onClick={() => updateSettings({ newPerDay: n })}
+              >
                 {n}
               </button>
             ))}
           </div>
         </div>
         <div className="field">
+          <span>Repasos por día (máximo)</span>
+          <div className="seg">
+            {[50, 100, 150, 250, 0].map((n) => (
+              <button
+                key={n}
+                aria-pressed={settings.maxReviews === n}
+                className={settings.maxReviews === n ? 'on' : ''}
+                onClick={() => updateSettings({ maxReviews: n })}
+              >
+                {n || '∞'}
+              </button>
+            ))}
+          </div>
+          <small className="muted">Si se acumulan, van primero los más atrasados y el resto queda para el día siguiente.</small>
+        </div>
+        <div className="field">
+          <span>Nivel inicial de las tarjetas nuevas</span>
+          <div className="seg">
+            {LEVELS.map((lv) => (
+              <button
+                key={lv}
+                aria-pressed={settings.startLevel === lv}
+                className={settings.startLevel === lv ? 'on' : ''}
+                onClick={() => updateSettings({ startLevel: lv, onboarded: true })}
+              >
+                {lv}
+              </button>
+            ))}
+          </div>
+          <small className="muted">Los niveles anteriores no se pierden: aparecen después.</small>
+        </div>
+        <div className="field">
           <span>Retención objetivo</span>
           <div className="seg">
             {[0.85, 0.9, 0.95].map((r) => (
-              <button key={r} className={settings.retention === r ? 'on' : ''} onClick={() => updateSettings({ retention: r })}>
+              <button
+                key={r}
+                aria-pressed={settings.retention === r}
+                className={settings.retention === r ? 'on' : ''}
+                onClick={() => updateSettings({ retention: r })}
+              >
                 {Math.round(r * 100)}%
               </button>
             ))}

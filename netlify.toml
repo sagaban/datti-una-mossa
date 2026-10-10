@@ -1,5 +1,6 @@
 [build]
-  command = "pnpm build"
+  # si un test falla (por ejemplo el candado de contenido) no se publica nada
+  command = "pnpm test && pnpm build"
   publish = "dist/client"
 
 [build.environment]

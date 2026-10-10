@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 import { LEVELS, type Level } from '../data/verbs'
 import { VERDICT_MSG, type Verdict, check } from '../lib/answer'
 import { AREA_LABEL, CATALOG, type Area, type CardDef, buildPrompt } from '../lib/cards'
-import { makeDue } from '../lib/store'
+import { getData, makeDue, updateSettings } from '../lib/store'
 
 export const Route = createFileRoute('/test')({ component: Test })
 
@@ -38,9 +38,9 @@ function Test() {
       <div className="stack">
         <h1>Autoevaluación</h1>
         <p className="muted">
-          {SIZE} preguntas mezcladas de vocabulario, verbos, gramática y falsos amigos (en B2 y C1, por ahora sólo
-          gramática). Sirve para saber dónde estás y qué reforzar. No afecta tus repasos, salvo que elijas agregar tus
-          errores.
+          {SIZE} preguntas mezcladas de vocabulario, verbos, gramática y falsos amigos. Sirve para saber dónde estás y qué
+          reforzar. Si dominás un nivel, te ofrece arrancar las tarjetas nuevas desde el siguiente. No afecta tus
+          repasos, salvo que elijas agregar tus errores.
         </p>
         {LEVELS.map((lv) => (
           <button
@@ -157,6 +157,7 @@ function TestQuestion({ def, onAnswer }: { def: CardDef; onAnswer: (a: Answer) =
 
 function Results({ level, answers, onAgain }: { level: Level; answers: Answer[]; onAgain: () => void }) {
   const [added, setAdded] = useState(false)
+  const [leveled, setLeveled] = useState(false)
   const ok = answers.filter((a) => a.ok).length
   const pct = Math.round((ok / answers.length) * 100)
   const byArea = new Map<Area, { ok: number; total: number }>()
@@ -174,11 +175,27 @@ function Results({ level, answers, onAgain }: { level: Level; answers: Answer[];
         ? `Buen nivel ${level}, con algunas cosas para pulir.`
         : `Todavía hay bastante del ${level} para reforzar. Los repasos diarios te van a ayudar.`
 
+  // si domina este nivel, las nuevas pueden arrancar en el siguiente
+  const next = LEVELS[LEVELS.indexOf(level) + 1]
+  const canLevelUp = pct >= 85 && next && LEVELS.indexOf(getData().settings.startLevel) < LEVELS.indexOf(next)
+
   return (
     <div className="stack">
       <div className="card center">
         <div className="score">{pct}%</div>
         <p>{verdict}</p>
+        {(canLevelUp || leveled) && (
+          <button
+            className="btn primary level-up"
+            disabled={leveled}
+            onClick={() => {
+              updateSettings({ startLevel: next, onboarded: true })
+              setLeveled(true)
+            }}
+          >
+            {leveled ? `Las nuevas arrancan en ${next} ✓` : `Empezar las tarjetas nuevas desde ${next}`}
+          </button>
+        )}
       </div>
       <div className="card">
         {[...byArea.entries()].map(([area, s]) => (

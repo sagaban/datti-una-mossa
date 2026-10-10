@@ -9,7 +9,10 @@ https://datti-una-mossa.netlify.app
 - **Repaso con repetición espaciada (FSRS v6, vía `ts-fsrs`)**: cada tarjeta vuelve justo antes de olvidarla.
 - **Primero ves, después recordás**: lo nuevo se presenta y se pregunta unas tarjetas más tarde, en la misma sesión.
 - **Autoevaluación** en cada respuesta (Otra vez / Difícil / Bien / Fácil, con el intervalo resultante). En las respuestas escritas la app corrige y sugiere una nota: tolera acentos, artículos faltantes y errores de tipeo.
-- **Test por nivel** (A1 a C1): 20 preguntas mezcladas, resultado por área y opción de mandar los errores al repaso.
+- **Test por nivel** (A1 a C1): 20 preguntas mezcladas, resultado por área y opción de mandar los errores al repaso. Si dominás un nivel, te ofrece arrancar las tarjetas nuevas desde el siguiente.
+- **Nivel inicial**: al empezar elegís cuánto italiano sabés (o hacés un test) y las tarjetas nuevas arrancan desde ese nivel; lo anterior queda para después.
+- **Límite diario de repasos** configurable: si se acumulan, van primero los más atrasados y las nuevas se pausan hasta ponerte al día.
+- **Historial de repasos** guardado y sincronizado, para poder optimizar FSRS con tus propios datos.
 - **Contenido**: ~2.800 palabras en 107 temas (A1–C1, elegidas con una lista de frecuencias del italiano hablado y revisadas), 136 verbos en 11 tiempos (incluido el passato remoto) y con reflexivos, 52 lecciones de gramática de A1 a C1 con 352 ejercicios y 39 falsos amigos español–italiano.
 - **Palabras transparentes** (≈ iguales al español y sin trampa de género ni falso amigo): sólo se practican en reconocimiento, no hace falta escribirlas.
 - Pronunciación con la voz italiana del sistema (Web Speech API).
