@@ -10,3 +10,6 @@ package-lock.json
 dist-ssr
 *.local
 .env
+
+# Local Netlify folder
+.netlify

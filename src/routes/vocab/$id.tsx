@@ -6,6 +6,7 @@ import { SpeakBtn } from '../../components/SpeakBtn'
 import { VOCAB } from '../../data/vocab'
 import { alts } from '../../lib/cards'
 import { makeDue, useData } from '../../lib/store'
+import { isEasyWord } from '../../lib/transparent'
 
 export const Route = createFileRoute('/vocab/$id')({
   loader: ({ params }) => {
@@ -44,7 +45,7 @@ function Theme() {
           {practice ? 'Ver lista' : 'Practicar'}
         </button>
         <button className="btn" disabled={!unseen.length} onClick={() => makeDue(unseen)}>
-          {unseen.length ? `Sumar ${unseen.length} al repaso` : 'En el repaso ✓'}
+          {unseen.length ? `+${unseen.length} al repaso` : 'En el repaso ✓'}
         </button>
       </div>
 
@@ -65,6 +66,11 @@ function Theme() {
                   <span className={`dot ${st.cls}`} title={st.label} aria-label={st.label} />
                   <div>
                     <strong className="word-it">{it}</strong>
+                    {isEasyWord(it, es, note) && (
+                      <span className="pill small transparent" title="Se parece al español">
+                        ≈ es
+                      </span>
+                    )}
                     <div className="muted small">{es}</div>
                     {note && <div className="word-note">{note}</div>}
                   </div>

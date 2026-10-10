@@ -31,7 +31,7 @@ export const FALSE_FRIENDS: FalseFriend[] = [
   { it: 'carta', means: 'papel', trap: 'carta (correo)', trapIt: 'lettera' },
   { it: 'negozio', means: 'tienda', trap: 'negocio (trato)', trapIt: 'affare' },
   { it: 'nudo', means: 'desnudo', trap: 'nudo', trapIt: 'nodo' },
-  { it: 'costipato', means: 'resfriado', trap: 'estreñido', trapIt: 'stitico' },
+  { it: 'stanza', means: 'habitación / cuarto', trap: 'estancia (campo)', trapIt: 'tenuta' },
   { it: 'palestra', means: 'gimnasio', trap: 'palestra (tribuna)', trapIt: 'tribuna' },
   { it: 'officina', means: 'taller', trap: 'oficina', trapIt: 'ufficio' },
   { it: 'tenda', means: 'carpa / cortina', trap: 'tienda', trapIt: 'negozio' },

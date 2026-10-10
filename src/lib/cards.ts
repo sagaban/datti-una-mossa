@@ -3,6 +3,7 @@ import { GRAMMAR } from '../data/grammar'
 import { VOCAB } from '../data/vocab'
 import { LEVELS, TENSE_LEVEL, VERBS, type Level } from '../data/verbs'
 import { PERSONS, TENSES, TENSE_LABEL, conjugate, expandForms, type Tense } from './conjugate'
+import { isEasyWord } from './transparent'
 
 export type Area = 'vocab' | 'verbi' | 'grammatica' | 'falsi'
 export type Kind = 'vocab-r' | 'vocab-p' | 'verb' | 'grammar' | 'ff'
@@ -74,10 +75,11 @@ function buildCatalog(): CardDef[] {
   for (const level of LEVELS) {
     const vocab: CardDef[] = []
     for (const t of VOCAB.filter((t) => t.level === level)) {
-      t.words.forEach((_, i) => {
+      t.words.forEach(([it, es, note], i) => {
         const base = { area: 'vocab' as const, level, group: t.id, groupLabel: t.name }
         vocab.push({ ...base, id: `v:${t.id}:${i}:r`, kind: 'vocab-r' })
-        vocab.push({ ...base, id: `v:${t.id}:${i}:p`, kind: 'vocab-p' })
+        // si se parece al español, escribirla no aporta: sólo reconocimiento
+        if (!isEasyWord(it, es, note)) vocab.push({ ...base, id: `v:${t.id}:${i}:p`, kind: 'vocab-p' })
       })
     }
     const verbs: CardDef[] = []
@@ -213,7 +215,8 @@ export function buildIntro(def: CardDef, seenGroups: Set<string>): Intro | null 
   switch (def.kind) {
     case 'vocab-r': {
       const { it, es, note } = vocabEntry(def.id)
-      return { title: it, lines: [es, ...(note ? [note] : [])], speak: it }
+      const extra = isEasyWord(it, es, note) ? ['≈ Se parece al español: fácil de recordar.'] : []
+      return { title: it, lines: [es, ...(note ? [note] : []), ...extra], speak: it }
     }
     case 'vocab-p':
       return null

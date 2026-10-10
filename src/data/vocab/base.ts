@@ -1,16 +1,19 @@
-import type { Level } from './verbs'
+import type { Level } from '../verbs'
 
 export interface VocabTheme {
   id: string
   name: string
   level: Level
-  /** [italiano, español, nota opcional]. Las alternativas van separadas por " / " */
+  /**
+   * [italiano, español, nota opcional]. Las alternativas van separadas por " / ".
+   * No borrar ni reordenar palabras: el id de cada tarjeta usa su posición (reemplazar en el lugar).
+   */
   words: [string, string, string?][]
 }
 
-const G = 'Género distinto al español'
+export const G = 'Género distinto al español'
 
-export const VOCAB: VocabTheme[] = [
+export const VOCAB_BASE: VocabTheme[] = [
   {
     id: 'saluti',
     name: 'Saludos y frases básicas',
@@ -122,10 +125,10 @@ export const VOCAB: VocabTheme[] = [
       ['la patata', 'la papa / la patata'],
       ['l’olio', 'el aceite', 'Falso amigo con “óleo”'],
       ['l’aceto', 'el vinagre', 'Falso amigo: aceite = olio'],
-      ['la colazione', 'el desayuno'],
+      ['la colazione', 'el desayuno', G],
       ['il pranzo', 'el almuerzo'],
       ['la cena', 'la cena'],
-      ['il conto', 'la cuenta', 'Racconto = cuento'],
+      ['il conto', 'la cuenta', `${G}. Racconto = cuento`],
       ['il cucchiaio', 'la cuchara', G],
       ['la forchetta', 'el tenedor', G],
       ['il coltello', 'el cuchillo'],
@@ -230,7 +233,7 @@ export const VOCAB: VocabTheme[] = [
       ['la città', 'la ciudad', 'Invariable: le città'],
       ['la strada', 'la calle / el camino'],
       ['la piazza', 'la plaza'],
-      ['il negozio', 'la tienda / el negocio', 'Falso amigo: negocio = affare'],
+      ['il negozio', 'la tienda / el negocio', `${G}. Falso amigo: negocio (trato) = affare`],
       ['il supermercato', 'el supermercado'],
       ['la stazione', 'la estación'],
       ['il treno', 'el tren'],
@@ -240,7 +243,7 @@ export const VOCAB: VocabTheme[] = [
       ['l’aereo', 'el avión'],
       ['il biglietto', 'el boleto / el billete'],
       ['l’ufficio', 'la oficina', G],
-      ['la banca', 'el banco (entidad)', 'El banco para sentarse es “la panchina”'],
+      ['la banca', 'el banco (entidad)', `${G}. El banco para sentarse es “la panchina”`],
       ['la farmacia', 'la farmacia'],
       ['l’ospedale', 'el hospital'],
       ['la chiesa', 'la iglesia'],
@@ -263,7 +266,7 @@ export const VOCAB: VocabTheme[] = [
       ['il naso', 'la nariz', G],
       ['la bocca', 'la boca'],
       ['il dente', 'el diente'],
-      ['l’orecchio', 'la oreja / el oído', 'Plural: le orecchie'],
+      ['l’orecchio', 'la oreja / el oído', `${G}. Plural: le orecchie`],
       ['il braccio', 'el brazo', 'Plural irregular: le braccia'],
       ['la mano', 'la mano', 'Plural: le mani'],
       ['il dito', 'el dedo', 'Plural irregular: le dita'],
@@ -274,9 +277,9 @@ export const VOCAB: VocabTheme[] = [
       ['il sangue', 'la sangre', G],
       ['il dolore', 'el dolor'],
       ['la febbre', 'la fiebre'],
-      ['il raffreddore', 'el resfrío', 'Costipato = resfriado, no estreñido'],
+      ['il raffreddore', 'el resfrío', 'Raffreddato = resfriado'],
       ['malato', 'enfermo'],
-      ['la medicina', 'el remedio / la medicina'],
+      ['la medicina', 'la medicina / el remedio'],
     ],
   },
   {
@@ -284,7 +287,7 @@ export const VOCAB: VocabTheme[] = [
     name: 'Ropa',
     level: 'A2',
     words: [
-      ['i vestiti', 'la ropa'],
+      ['i vestiti', 'la ropa', G],
       ['la camicia', 'la camisa'],
       ['la maglietta', 'la remera / la camiseta'],
       ['i pantaloni', 'los pantalones'],
@@ -294,10 +297,10 @@ export const VOCAB: VocabTheme[] = [
       ['la giacca', 'la campera / la chaqueta'],
       ['il cappello', 'el sombrero'],
       ['la borsa', 'la cartera / el bolso'],
-      ['la tasca', 'el bolsillo'],
+      ['la tasca', 'el bolsillo', G],
       ['gli occhiali', 'los anteojos / las gafas'],
       ['indossare', 'llevar puesto / vestir'],
-      ['la taglia', 'el talle'],
+      ['la taglia', 'el talle', G],
     ],
   },
   {
@@ -306,7 +309,7 @@ export const VOCAB: VocabTheme[] = [
     level: 'A2',
     words: [
       ['il lavoro', 'el trabajo'],
-      ['il collega', 'el colega / compañero de trabajo'],
+      ['il collega', 'el colega / el compañero de trabajo'],
       ['il capo', 'el jefe'],
       ['la riunione', 'la reunión'],
       ['lo stipendio', 'el sueldo'],
@@ -320,9 +323,9 @@ export const VOCAB: VocabTheme[] = [
       ['l’azienda', 'la empresa'],
       ['l’affare', 'el negocio (trato)'],
       ['l’impiegato', 'el empleado'],
-      ['l’officina', 'el taller', 'Falso amigo: oficina = ufficio'],
+      ['l’officina', 'el taller', `${G}. Falso amigo: oficina = ufficio`],
       ['il computer', 'la computadora', G],
-      ['la scrivania', 'el escritorio'],
+      ['la scrivania', 'el escritorio', G],
     ],
   },
   {
@@ -449,11 +452,11 @@ export const VOCAB: VocabTheme[] = [
       ['prenotare', 'reservar'],
       ['l’albergo', 'el hotel'],
       ['il volo', 'el vuelo'],
-      ['il ritardo', 'el retraso / la demora', G],
-      ['l’andata e ritorno', 'ida y vuelta'],
+      ['il ritardo', 'el retraso / la demora'],
+      ['andata e ritorno', 'ida y vuelta'],
       ['il binario', 'el andén / la vía'],
       ['noleggiare', 'alquilar (un vehículo)'],
-      ['affittare', 'alquilar (una casa)'],
+      ['il pernottamento', 'la noche de alojamiento / la pernoctación'],
       ['la gita', 'la excursión'],
       ['il paesaggio', 'el paisaje'],
       ['la dogana', 'la aduana'],
@@ -473,7 +476,7 @@ export const VOCAB: VocabTheme[] = [
       ['la legge', 'la ley'],
       ['il diritto', 'el derecho'],
       ['il dovere', 'el deber'],
-      ['la disoccupazione', 'el desempleo'],
+      ['la disoccupazione', 'el desempleo', G],
       ['la crisi', 'la crisis', 'Invariable: le crisi'],
       ['lo sciopero', 'la huelga', G],
       ['la manifestazione', 'la manifestación / la marcha'],
@@ -485,7 +488,7 @@ export const VOCAB: VocabTheme[] = [
       ['lo sviluppo', 'el desarrollo'],
       ['la sanità', 'la salud pública'],
       ['l’istruzione', 'la educación'],
-      ['il sondaggio', 'la encuesta'],
+      ['il sondaggio', 'la encuesta', G],
       ['la notizia', 'la noticia'],
       ['il giornale', 'el diario'],
       ['la pubblicità', 'la publicidad'],
@@ -496,26 +499,26 @@ export const VOCAB: VocabTheme[] = [
     name: 'Trabajo y dinero',
     level: 'B2',
     words: [
-      ['i soldi', 'la plata / el dinero', 'Siempre plural'],
+      ['i soldi', 'la plata / el dinero', `${G}. Siempre plural`],
       ['il conto corrente', 'la cuenta corriente'],
-      ['il bonifico', 'la transferencia bancaria'],
-      ['il mutuo', 'la hipoteca', 'Falso amigo con “mutuo” (recíproco)'],
+      ['il bonifico', 'la transferencia bancaria', G],
+      ['il mutuo', 'la hipoteca', `${G}. Falso amigo con “mutuo” (recíproco)`],
       ['il prestito', 'el préstamo'],
-      ['le tasse', 'los impuestos'],
+      ['le tasse', 'los impuestos', G],
       ['la bolletta', 'la factura (de luz, gas…)'],
       ['l’affitto', 'el alquiler'],
       ['il risparmio', 'el ahorro'],
       ['risparmiare', 'ahorrar'],
-      ['il colloquio', 'la entrevista (de trabajo)'],
+      ['il colloquio', 'la entrevista (de trabajo)', G],
       ['il curriculum', 'el currículum'],
       ['assumere', 'contratar', 'Participio: assunto'],
       ['licenziare', 'despedir'],
       ['dimettersi', 'renunciar (a un cargo)'],
-      ['lo straordinario', 'las horas extra'],
+      ['lo straordinario', 'las horas extra', G],
       ['le ferie', 'las vacaciones (del trabajo)'],
       ['la pensione', 'la jubilación', 'También: pensión (hotel chico)'],
       ['il contratto', 'el contrato'],
-      ['la scadenza', 'el vencimiento / la fecha límite'],
+      ['la scadenza', 'el vencimiento / la fecha límite', G],
     ],
   },
   {
@@ -523,8 +526,8 @@ export const VOCAB: VocabTheme[] = [
     name: 'Expresiones idiomáticas',
     level: 'C1',
     words: [
-      ['in bocca al lupo', 'mucha suerte', 'Respuesta: crepi!'],
-      ['non vedo l’ora', 'no veo la hora'],
+      ['avere le mani in pasta', 'estar metido en todo / tener contactos'],
+      ['essere al settimo cielo', 'estar en el séptimo cielo / estar feliz'],
       ['avere le mani bucate', 'ser derrochador'],
       ['essere al verde', 'estar sin un peso'],
       ['costare un occhio della testa', 'costar un ojo de la cara'],
@@ -550,7 +553,7 @@ export const VOCAB: VocabTheme[] = [
     name: 'Léxico culto',
     level: 'C1',
     words: [
-      ['tuttavia', 'sin embargo'],
+      ['peraltro', 'por otra parte / además'],
       ['pertanto', 'por lo tanto'],
       ['nonché', 'así como / además de'],
       ['bensì', 'sino (que)', 'Non questo, bensì quello'],

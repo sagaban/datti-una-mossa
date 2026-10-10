@@ -760,3 +760,7 @@ button {
   border-color: var(--green);
   background: var(--green);
 }
+.pill.transparent {
+  margin-left: 6px;
+  vertical-align: middle;
+}
