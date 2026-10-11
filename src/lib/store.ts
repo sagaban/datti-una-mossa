@@ -2,7 +2,17 @@ import { useSyncExternalStore } from 'react'
 import { type Card, type Grade, Rating, State, createEmptyCard, fsrs, generatorParameters } from 'ts-fsrs'
 import { CARD_BY_ID, CATALOG, type Area, type CardDef } from './cards'
 import { LEVELS, type Level } from '../data/verbs'
-import { type DayLog, type ReviewLogEntry, type SyncPayload, mergeLogs, mergePayload, sumDays } from './sync-core'
+import { canSpeak } from './speech'
+import {
+  type DayLog,
+  type ReviewLogEntry,
+  type Suspension,
+  type SyncPayload,
+  mergeLogs,
+  mergePayload,
+  mergeSuspended,
+  sumDays,
+} from './sync-core'
 
 export type { DayLog }
 
@@ -41,6 +51,8 @@ export interface Data {
   sync: SyncState | null
   /** historial de repasos (para optimizar FSRS con los datos propios) */
   logs: ReviewLogEntry[]
+  /** tarjetas suspendidas ("ya la sé" / "no me interesa"); se conserva la marca para sincronizar */
+  suspended: Record<string, Suspension>
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -48,7 +60,7 @@ const DEFAULT_SETTINGS: Settings = {
   maxReviews: 150,
   startLevel: 'A1',
   onboarded: false,
-  areas: { vocab: true, verbi: true, grammatica: true, falsi: true },
+  areas: { vocab: true, verbi: true, grammatica: true, falsi: true, ascolto: true },
   autoSpeak: false,
   retention: 0.9,
 }
@@ -66,6 +78,7 @@ const empty = (): Data => ({
   remoteDays: {},
   sync: null,
   logs: [],
+  suspended: {},
 })
 
 export const today = (d = new Date()) =>
@@ -224,6 +237,7 @@ export function toPayload(): SyncPayload {
     settingsUpdatedAt: data.settingsUpdatedAt,
     devices: { ...data.remoteDays, [data.deviceId]: data.days },
     logs: data.logs,
+    suspended: data.suspended,
   }
 }
 
@@ -240,6 +254,7 @@ export function applyRemote(remote: SyncPayload, sync: Partial<SyncState>) {
     days: own,
     remoteDays: others,
     logs: mergeLogs(data.logs, merged.logs),
+    suspended: mergeSuspended(data.suspended, merged.suspended),
     sync: data.sync ? { ...data.sync, ...sync } : null,
   })
   commit(next, { fromSync: true })
@@ -269,14 +284,34 @@ export function allDays(): Record<string, DayLog> {
 // ——— Construcción de sesiones ———
 
 function enabled(def: CardDef) {
+  if (data.suspended[def.id]?.on) return false
+  // el dictado necesita la voz del sistema
+  if (def.area === 'ascolto' && !canSpeak()) return false
   return data.settings.areas[def.area]
 }
 
-/** La producción (ES→IT) se habilita cuando ya reconocés la palabra */
+export const isSuspended = (id: string) => !!data.suspended[id]?.on
+
+/** Suspende o reactiva tarjetas; en vocabulario conviene pasar ambas direcciones */
+export function setSuspended(ids: string[], on: boolean) {
+  const at = Date.now()
+  const suspended = { ...data.suspended }
+  for (const id of ids) suspended[id] = { on, at }
+  commit({ ...data, suspended })
+}
+
+export const suspendedCount = () => Object.values(data.suspended).filter((s) => s.on).length
+
+/**
+ * La producción (ES→IT) se habilita cuando ya reconocés la palabra, y el dictado
+ * de una frase cuando ya practicaste su ejercicio de gramática.
+ */
 function unlocked(def: CardDef) {
-  if (def.kind !== 'vocab-p') return true
-  const r = data.cards[def.id.replace(/:p$/, ':r')]
-  return !!r && r.state === State.Review
+  const prereq =
+    def.kind === 'vocab-p' ? def.id.replace(/:p$/, ':r') : def.kind === 'dictation' ? def.id.replace(/^d:/, 'g:') : null
+  if (!prereq) return true
+  const c = data.cards[prereq]
+  return !!c && c.state === State.Review
 }
 
 export function dueCards(now = new Date()): CardDef[] {

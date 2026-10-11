@@ -31,6 +31,7 @@ const payload = (p: Partial<SyncPayload>): SyncPayload => ({
   settingsUpdatedAt: 0,
   devices: {},
   logs: [],
+  suspended: {},
   ...p,
 })
 
@@ -123,5 +124,15 @@ describe('historial de repasos', () => {
   it('descarta entradas inválidas', () => {
     const p = parsePayload({ v: 1, logs: [['x', 1, 3, 0, 5], ['x', 'nope', 3, 0, 5], ['x', 2, 9, 0, 5], [42, 3, 3, 0, 1]] })
     expect(p.logs).toEqual([['x', 1, 3, 0, 5]])
+  })
+})
+
+describe('suspensiones', () => {
+  it('gana el cambio más reciente: reactivar en otro dispositivo se propaga', () => {
+    const a = payload({ suspended: { x: { on: true, at: 100 }, y: { on: true, at: 100 } } })
+    const b = payload({ suspended: { x: { on: false, at: 200 } } })
+    const m = mergePayload(a, b)
+    expect(m.suspended.x.on).toBe(false)
+    expect(m.suspended.y.on).toBe(true)
   })
 })

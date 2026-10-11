@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { GRAMMAR } from '../data/grammar'
 import { LEVELS } from '../data/verbs'
-import { CATALOG, buildPrompt } from './cards'
+import { CATALOG, buildPrompt, fillBlank } from './cards'
 
 describe('catálogo', () => {
   it('ids únicos', () => {
@@ -29,5 +29,11 @@ describe('catálogo', () => {
   })
   it('ids de lecciones únicos', () => {
     expect(new Set(GRAMMAR.map((g) => g.id)).size).toBe(GRAMMAR.length)
+  })
+  it('fillBlank: mayúscula al inicio de oración y apóstrofo pegado', () => {
+    expect(fillBlank({ s: '___ mi ha chiamato oggi.', a: ['nessuno'], es: '' })).toBe('Nessuno mi ha chiamato oggi.')
+    expect(fillBlank({ s: 'Che ore sono? ___ le dieci.', a: ['saranno'], es: '' })).toBe('Che ore sono? Saranno le dieci.')
+    expect(fillBlank({ s: '___ amica di Marco è simpatica.', a: ['l’'], es: '' })).toBe('L’amica di Marco è simpatica.')
+    expect(fillBlank({ s: 'Sì, ce ___ ho.', a: ['l’'], es: '' })).toBe('Sì, ce l’ho.')
   })
 })

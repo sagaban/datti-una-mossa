@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { Rating } from 'ts-fsrs'
-import { buildSession, getData, makeDue, nextNewCards, resetAll, review, reviewsLeft, updateSettings } from './store'
+import { buildSession, dueCards, getData, isSuspended, makeDue, nextNewCards, resetAll, review, reviewsLeft, setSuspended, updateSettings } from './store'
 import { CATALOG } from './cards'
 
 beforeEach(() => resetAll())
@@ -18,7 +18,7 @@ describe('nivel inicial', () => {
     expect(firstA1).toBeGreaterThan(all.map((d) => d.level).lastIndexOf('C1'))
   })
   it('con A1 el orden es el del catálogo', () => {
-    expect(nextNewCards(5).map((d) => d.id)).toEqual(CATALOG.filter((d) => d.kind !== 'vocab-p').slice(0, 5).map((d) => d.id))
+    expect(nextNewCards(5).map((d) => d.id)).toEqual(CATALOG.filter((d) => d.kind !== 'vocab-p' && d.kind !== 'dictation').slice(0, 5).map((d) => d.id))
   })
 })
 
@@ -67,5 +67,40 @@ describe('historial de repasos', () => {
     expect(logs[0]).toEqual([id, expect.any(Number), Rating.Good, 0, 7])
     expect(logs[1][2]).toBe(Rating.Again)
     expect(logs[1][3]).not.toBe(0) // ya no era nueva
+  })
+})
+
+describe('suspender tarjetas', () => {
+  it('una tarjeta suspendida no aparece ni en repasos ni como nueva, y se puede reactivar', () => {
+    const [a, b] = CATALOG.filter((d) => d.kind === 'vocab-r')
+    makeDue([a.id, b.id])
+    setSuspended([a.id], true)
+    expect(isSuspended(a.id)).toBe(true)
+    expect(dueCards().map((d) => d.id)).toEqual([b.id])
+    expect(nextNewCards(Infinity).some((d) => d.id === a.id)).toBe(false)
+    setSuspended([a.id], false)
+    expect(dueCards().map((d) => d.id).sort()).toEqual([a.id, b.id].sort())
+  })
+})
+
+describe('dictado', () => {
+  it('la frase se habilita para dictado cuando ya practicaste el ejercicio', () => {
+    const d = CATALOG.find((c) => c.kind === 'dictation')!
+    const g = d.id.replace(/^d:/, 'g:')
+    updateSettings({ newPerDay: 10_000 })
+    expect(nextNewCards(Infinity).some((c) => c.id === d.id)).toBe(false)
+    // simular que el ejercicio ya está aprendido
+    review(g, Rating.Easy, 1)
+    review(g, Rating.Easy, 1)
+    expect(getData().cards[g].state).toBe(2)
+    // sin voz del sistema (como en Node) el dictado se desactiva
+    expect(nextNewCards(Infinity).some((c) => c.id === d.id)).toBe(false)
+    const g2 = globalThis as { window?: unknown }
+    g2.window = { speechSynthesis: {} }
+    try {
+      expect(nextNewCards(Infinity).some((c) => c.id === d.id)).toBe(true)
+    } finally {
+      delete g2.window
+    }
   })
 })

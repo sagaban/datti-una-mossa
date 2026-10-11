@@ -719,7 +719,8 @@ button {
 
 @media (prefers-color-scheme: dark) {
   .btn.primary,
-  .seg button.on {
+  .seg button.on,
+  .chip.on {
     color: #0d1f16;
   }
 }
@@ -790,4 +791,65 @@ button {
 }
 .onboarding .option strong {
   font-family: var(--serif);
+}
+
+/* ——— Menú de tarjeta, aviso y dictado ——— */
+.review-card {
+  position: relative;
+}
+.card-menu-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.3rem;
+  line-height: 1;
+}
+.card-menu-btn:hover,
+.card-menu-btn[aria-expanded='true'] {
+  background: var(--surface-2);
+}
+.card-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--surface-2);
+  border-radius: 12px;
+  padding: 12px;
+}
+.chip.on {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+textarea.input {
+  font-size: 1rem;
+  resize: vertical;
+  font-family: inherit;
+}
+.notice {
+  background: var(--green-soft);
+  color: var(--green);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+.dictation {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.is-suspended .word-it,
+.is-suspended .muted {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.dot.suspended {
+  border-style: dashed;
 }

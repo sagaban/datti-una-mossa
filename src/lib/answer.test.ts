@@ -30,4 +30,11 @@ describe('check', () => {
   it('respuesta vacía es incorrecta', () => {
     expect(check('', ['sono']).verdict).toBe('wrong')
   })
+  it('en frases ignora comillas y puntuación, y tolera hasta 2 errores', () => {
+    const s = 'Mi ha detto che sarebbe venuto.'
+    expect(check('mi ha detto che sarebbe venuto', [s]).verdict).toBe('correct')
+    expect(check('mi ha deto che sarebe venuto', [s]).verdict).toBe('typo')
+    expect(check('mi ha deto che sarebe venut', [s]).verdict).toBe('wrong')
+    expect(check('Ho detto: «basta»', ['ho detto basta']).verdict).toBe('correct')
+  })
 })

@@ -1,18 +1,19 @@
 import { FALSE_FRIENDS } from '../data/falseFriends'
-import { GRAMMAR } from '../data/grammar'
+import { type Exercise, GRAMMAR } from '../data/grammar'
 import { VOCAB } from '../data/vocab'
 import { LEVELS, TENSE_LEVEL, VERBS, type Level } from '../data/verbs'
 import { PERSONS, TENSES, TENSE_LABEL, conjugate, expandForms, type Tense } from './conjugate'
 import { isEasyWord } from './transparent'
 
-export type Area = 'vocab' | 'verbi' | 'grammatica' | 'falsi'
-export type Kind = 'vocab-r' | 'vocab-p' | 'verb' | 'grammar' | 'ff'
+export type Area = 'vocab' | 'verbi' | 'grammatica' | 'falsi' | 'ascolto'
+export type Kind = 'vocab-r' | 'vocab-p' | 'verb' | 'grammar' | 'ff' | 'dictation'
 
 export const AREA_LABEL: Record<Area, string> = {
   vocab: 'Vocabulario',
   verbi: 'Verbos',
   grammatica: 'Gramática',
   falsi: 'Falsos amigos',
+  ascolto: 'Escucha',
 }
 
 export interface CardDef {
@@ -41,12 +42,32 @@ export interface Prompt {
   speak?: string
   /** si la pregunta está en italiano se puede escuchar antes de responder */
   speakQuestion?: boolean
+  /** dictado: la pregunta es sólo el audio de `speak` */
+  dictation?: boolean
 }
 
 export interface Intro {
   title: string
   lines: string[]
   speak?: string
+}
+
+/** Completa el hueco con la respuesta, con mayúscula si queda al inicio de una oración */
+export function fillBlank(ex: Exercise): string {
+  const ans = ex.a[0]
+  // "l’" + "amica" van pegados: "l’amica", "ce l’ho"
+  const filled = /[’']$/.test(ans) ? ex.s.replace(/___\s*/, ans) : ex.s.replace('___', ans)
+  return filled
+    .replace(/^\p{Ll}/u, (c) => c.toUpperCase())
+    .replace(/([.?!] )(\p{Ll})/gu, (_, p, c: string) => p + c.toUpperCase())
+}
+
+/** Frase completa de un ejercicio, lista para dictar; null si no sirve para dictado */
+export function dictationText(ex: Exercise): string | null {
+  // transformaciones, diálogos y citas (pueden traer palabras en español): se leen mal
+  if (/→|—| \/ |“/.test(ex.s)) return null
+  const text = fillBlank(ex).replace(/\s*\([^)]*\)/g, '').trim()
+  return text.split(' ').length >= 2 ? text : null
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -101,6 +122,14 @@ function buildCatalog(): CardDef[] {
         grammar.push({ id: `g:${g.id}:${i}`, kind: 'grammar', area: 'grammatica', level, group: g.id, groupLabel: g.title }),
       )
     }
+    // dictado: frases de los ejercicios de gramática (se habilitan cuando ya practicaste el ejercicio)
+    const dictation: CardDef[] = []
+    for (const g of GRAMMAR.filter((g) => g.level === level)) {
+      g.ex.forEach((ex, i) => {
+        if (dictationText(ex))
+          dictation.push({ id: `d:${g.id}:${i}`, kind: 'dictation', area: 'ascolto', level, group: g.id, groupLabel: g.title })
+      })
+    }
     const ff: CardDef[] =
       level === 'A2'
         ? FALSE_FRIENDS.map((_, i) => ({
@@ -112,14 +141,14 @@ function buildCatalog(): CardDef[] {
             groupLabel: 'Falsos amigos',
           }))
         : []
-    byLevel[level] = [vocab, verbs, grammar, ff]
+    byLevel[level] = [vocab, verbs, grammar, ff, dictation]
   }
 
   const out: CardDef[] = []
   for (const level of LEVELS) {
     const queues = byLevel[level].map((q) => [...q])
     // vocab avanza más rápido que el resto: 2 palabras por cada verbo/gramática
-    const weights = [3, 1, 1, 1]
+    const weights = [3, 1, 1, 1, 1]
     while (queues.some((q) => q.length)) {
       queues.forEach((q, i) => out.push(...q.splice(0, weights[i])))
     }
@@ -187,8 +216,24 @@ export function buildPrompt(def: CardDef): Prompt {
         mode: ex.opts ? 'choice' : 'type',
         answers: ex.a,
         options: ex.opts ? shuffle(ex.opts) : undefined,
-        reveal: ex.s.replace('___', ex.a[0]),
-        speak: ex.s.replace('___', ex.a[0]).replace(/\(.*?\)/g, ''),
+        reveal: fillBlank(ex),
+        speak: fillBlank(ex).replace(/\(.*?\)/g, ''),
+      }
+    }
+    case 'dictation': {
+      const [, topicId, idx] = def.id.split(':')
+      const g = GRAMMAR.find((g) => g.id === topicId)!
+      const ex = g.ex[Number(idx)]
+      const text = dictationText(ex)!
+      return {
+        label: `Escucha · ${g.title}`,
+        question: 'Escuchá y escribí la frase',
+        hint: ex.es,
+        mode: 'type',
+        answers: [text],
+        reveal: text,
+        speak: text,
+        dictation: true,
       }
     }
     case 'ff': {
@@ -219,6 +264,7 @@ export function buildIntro(def: CardDef, seenGroups: Set<string>): Intro | null 
       return { title: it, lines: [es, ...(note ? [note] : []), ...extra], speak: it }
     }
     case 'vocab-p':
+    case 'dictation':
       return null
     case 'verb': {
       const [, inf, tense] = def.id.split(':') as [string, string, Tense]

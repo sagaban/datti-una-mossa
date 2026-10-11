@@ -9,6 +9,8 @@ PWA para aprender italiano en ratos libres, pensada para **hispanohablantes riop
 - **Repaso con repetición espaciada:** FSRS v6 vía `ts-fsrs`, con tarjetas de vocabulario (IT→ES y ES→IT), verbos (conjugación), gramática (huecos) y falsos amigos.
 - **Autoevaluación:** el usuario califica cada respuesta con 4 botones FSRS. En las respuestas escritas la app corrige y sugiere una nota (tolera acentos, artículo faltante y errores de tipeo).
 - **Secciones para explorar:** Palabras (vocabulario por tema), Gramática (lecciones A1–C1 con práctica), Verbos (tablas de 11 tiempos), Test (autoevaluación por nivel) y Progreso.
+- **Escucha (dictado):** la app lee una frase de un ejercicio de gramática ya practicado y se escribe completa.
+- **Suspender tarjetas** y **reportar errores de contenido** desde el menú "⋯" de cada tarjeta.
 - **Sincronización opcional entre dispositivos** con un código aleatorio (Netlify Function + Netlify Blobs).
 
 Idioma: la UI, los comentarios y los commits van en **español rioplatense** (voseo: "tocá", "revisá"). El contenido de estudio es italiano estándar.
@@ -70,6 +72,7 @@ src/
   components/               Practice (práctica libre), SpeakBtn, SyncPanel
   routes/                   index (inicio), repaso (sesión), vocab/, lezioni/, verbi/, test, progressi, impostazioni, sincronizar
 netlify/functions/sync.mts  POST/DELETE /api/sync
+netlify/functions/report.mts POST /api/report (reportes de errores → Blobs store `reports`)
 scripts/sw.mjs              genera dist/client/sw.js
 ```
 
@@ -85,6 +88,7 @@ El progreso FSRS se guarda por id de tarjeta:
 | Verbo | `c:{infinitivo}:{tiempo}` | infinitivo + clave del tiempo en `TENSES` |
 | Gramática | `g:{topicId}:{índice}` | id de la lección + **posición** del ejercicio |
 | Falso amigo | `f:{índice}` | **posición** en `FALSE_FRIENDS` |
+| Dictado | `d:{topicId}:{índice}` | id de la lección + **posición** del ejercicio (frase completa vía `dictationText`) |
 | Lección vista | `g:{topicId}` en `data.seen` | id de la lección |
 
 Por eso:
@@ -123,6 +127,25 @@ Los reflexivos se detectan por terminar en `-si`. Las formas con `/` indican var
 - **Tarjetas nuevas:** salen de `CATALOG` (intercalado por área, nivel por nivel) empezando en `settings.startLevel`; los niveles anteriores quedan al final. El cupo `newPerDay` es por persona: se suma entre dispositivos.
 - **Repasos:** se ordenan por vencimiento (los más atrasados primero) y se cortan en `settings.maxReviews` por día (0 = sin límite).
 - **Atraso:** si quedan pendientes que no entran hoy, las nuevas se pausan (`buildSession`), salvo pedido explícito (`extraNew`).
+
+- **Prerrequisitos:** la producción de vocabulario (`:p`) se habilita cuando su reconocimiento (`:r`) está en estado Review; el dictado `d:x:i`, cuando el ejercicio `g:x:i` lo está. El dictado además necesita la voz del sistema (`canSpeak()`).
+- **Suspensiones:** `data.suspended[id] = { on, at }` se sincroniza por "gana el `at` más reciente", así reactivar también se propaga. En vocabulario se suspende la palabra entera (`:r` y `:p`).
+
+## Reportes de errores de contenido
+
+Los usuarios reportan errores desde el menú "⋯" de cada tarjeta. Llegan anónimos al store de Blobs `reports` con esta forma: `{ cardId, reason: traduccion|italiano|correccion|otro, comment, question, expected, given, at }`. Para procesarlos:
+
+```sh
+netlify blobs:list reports --json        # listar
+netlify blobs:get reports "<key>"        # leer uno
+```
+
+1. Ubicá la entrada por `cardId` (ver tabla de ids): `v:` → `src/data/vocab/*`, `g:`/`d:` → `src/data/grammar*.ts`, `f:` → `falseFriends.ts`.
+2. Si el reporte tiene razón, corregí **en el lugar**, corré `pnpm content:lock` y revisá que el diff del candado muestre sólo esa entrada.
+3. Si es `correccion` (respuesta correcta marcada como error), suele faltar una alternativa: agregala al campo de respuestas (`' / '` en vocabulario, `a: [...]` en gramática).
+4. Borrá el reporte procesado: `netlify blobs:delete reports "<key>" --force`.
+
+⚠️ No borres nada del store `progress`: es el progreso sincronizado de usuarios reales.
 
 ## Convenciones de contenido
 

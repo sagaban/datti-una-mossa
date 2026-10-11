@@ -5,7 +5,7 @@ import { Practice } from '../../components/Practice'
 import { SpeakBtn } from '../../components/SpeakBtn'
 import { VOCAB } from '../../data/vocab'
 import { alts } from '../../lib/cards'
-import { makeDue, useData } from '../../lib/store'
+import { makeDue, setSuspended, useData } from '../../lib/store'
 import { isEasyWord } from '../../lib/transparent'
 
 export const Route = createFileRoute('/vocab/$id')({
@@ -26,6 +26,7 @@ function Theme() {
   const unseen = ids.filter((id) => !data.cards[id])
 
   const status = (id: string) => {
+    if (data.suspended[id]?.on) return { cls: 'suspended', label: 'Suspendida' }
     const c = data.cards[id]
     if (!c) return { cls: '', label: 'Nueva' }
     if (c.state === State.Review && c.scheduled_days >= 21) return { cls: 'mature', label: 'Consolidada' }
@@ -61,7 +62,7 @@ function Theme() {
           {theme.words.map(([it, es, note], i) => {
             const st = status(ids[i])
             return (
-              <div key={it} className="list-item word">
+              <div key={it} className={`list-item word ${st.cls === 'suspended' ? 'is-suspended' : ''}`}>
                 <div className="word-main">
                   <span className={`dot ${st.cls}`} title={st.label} aria-label={st.label} />
                   <div>
@@ -75,7 +76,13 @@ function Theme() {
                     {note && <div className="word-note">{note}</div>}
                   </div>
                 </div>
-                <SpeakBtn text={it} />
+                {st.cls === 'suspended' ? (
+                  <button className="btn ghost small" onClick={() => setSuspended([ids[i], ids[i].replace(/:r$/, ':p')], false)}>
+                    Reactivar
+                  </button>
+                ) : (
+                  <SpeakBtn text={it} />
+                )}
               </div>
             )
           })}
@@ -83,7 +90,7 @@ function Theme() {
       )}
       {!practice && (
         <p className="muted small">
-          <span className="dot" /> nueva · <span className="dot learning" /> aprendiendo · <span className="dot mature" /> consolidada
+          <span className="dot" /> nueva · <span className="dot learning" /> aprendiendo · <span className="dot mature" /> consolidada · tachada = suspendida
         </p>
       )}
     </div>

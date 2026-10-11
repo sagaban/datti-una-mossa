@@ -31,6 +31,12 @@ export interface CardState {
  */
 export type ReviewLogEntry = [cardId: string, time: number, rating: number, state: number, seconds: number]
 
+/** Suspensión de una tarjeta: gana el cambio más reciente, así reactivar también se propaga */
+export interface Suspension {
+  on: boolean
+  at: number
+}
+
 export interface SyncPayload {
   v: 1
   cards: Record<string, CardState>
@@ -40,6 +46,7 @@ export interface SyncPayload {
   /** estadísticas diarias por dispositivo: así dos dispositivos no se pisan ni se suman doble */
   devices: Record<string, Record<string, DayLog>>
   logs: ReviewLogEntry[]
+  suspended: Record<string, Suspension>
 }
 
 // ——— Código de sincronización ———
@@ -151,7 +158,22 @@ export function parsePayload(x: unknown): SyncPayload {
     settingsUpdatedAt: num(x.settingsUpdatedAt),
     devices,
     logs: cleanLogs(x.logs),
+    suspended: cleanSuspended(x.suspended),
   }
+}
+
+function cleanSuspended(x: unknown): Record<string, Suspension> {
+  const out: Record<string, Suspension> = {}
+  if (!isObj(x)) return out
+  for (const [id, v] of Object.entries(x).slice(0, LIMITS.cards))
+    if (ID_RE.test(id) && isObj(v) && typeof v.on === 'boolean') out[id] = { on: v.on, at: num(v.at) }
+  return out
+}
+
+export function mergeSuspended(a: Record<string, Suspension>, b: Record<string, Suspension>): Record<string, Suspension> {
+  const out = { ...a }
+  for (const [id, s] of Object.entries(b)) if (!out[id] || s.at > out[id].at) out[id] = s
+  return out
 }
 
 /** Unión de historiales sin duplicados (mismo repaso = misma tarjeta y mismo momento), por fecha */
@@ -209,6 +231,7 @@ export function mergePayload(a: SyncPayload, b: SyncPayload): SyncPayload {
     settingsUpdatedAt: newerSettings.settingsUpdatedAt,
     devices,
     logs: mergeLogs(a.logs, b.logs),
+    suspended: mergeSuspended(a.suspended, b.suspended),
   }
 }
 

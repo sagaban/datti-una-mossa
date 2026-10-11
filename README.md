@@ -16,6 +16,8 @@ https://datti-una-mossa.netlify.app
 - **Contenido**: ~2.800 palabras en 107 temas (A1–C1, elegidas con una lista de frecuencias del italiano hablado y revisadas), 136 verbos en 11 tiempos (incluido el passato remoto) y con reflexivos, 52 lecciones de gramática de A1 a C1 con 352 ejercicios y 39 falsos amigos español–italiano.
 - **Palabras transparentes** (≈ iguales al español y sin trampa de género ni falso amigo): sólo se practican en reconocimiento, no hace falta escribirlas.
 - Pronunciación con la voz italiana del sistema (Web Speech API).
+- **Escucha (dictado)**: la app lee una frase de los ejercicios que ya practicaste y la escribís completa, con opción de escucharla más lento o ver la traducción.
+- **Suspender tarjetas** ("ya la sé" / "no me interesa") y **reportar errores** de contenido desde el menú ⋯ de cada tarjeta.
 - Secciones para recorrer vocabulario (con audio y estado de cada palabra), gramática y verbos, con práctica libre.
 - **Sincronización entre dispositivos** sin cuentas: un código aleatorio de 160 bits (o un link) empareja el celular y la compu. El progreso se guarda en Netlify Blobs bajo el hash del código; por tarjeta gana el repaso más reciente y las estadísticas se llevan por dispositivo. Funciona offline y sincroniza al abrir, al volver la conexión, al pasar a segundo plano y después de repasar.
 - Exportar/importar el progreso en JSON.

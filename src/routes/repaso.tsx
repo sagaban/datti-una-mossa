@@ -2,7 +2,8 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { type Grade, Rating } from 'ts-fsrs'
 import { VERDICT_MSG, type Verdict, check } from '../lib/answer'
-import { type Area, type Prompt, buildIntro, buildPrompt } from '../lib/cards'
+import { AREA_LABEL, type Area, type Prompt, buildIntro, buildPrompt } from '../lib/cards'
+import { CardMenu } from '../components/CardMenu'
 import { SpeakBtn } from '../components/SpeakBtn'
 import { speak } from '../lib/speech'
 import {
@@ -27,7 +28,7 @@ interface Search {
 export const Route = createFileRoute('/repaso')({
   validateSearch: (s: Record<string, unknown>): Search => ({
     max: typeof s.max === 'number' ? s.max : undefined,
-    area: ['vocab', 'verbi', 'grammatica', 'falsi'].includes(s.area as string) ? (s.area as Area) : undefined,
+    area: typeof s.area === 'string' && s.area in AREA_LABEL ? (s.area as Area) : undefined,
     extra: typeof s.extra === 'number' ? s.extra : undefined,
     extraReviews: typeof s.extraReviews === 'number' ? s.extraReviews : undefined,
   }),
@@ -72,6 +73,12 @@ function Review() {
   const search = Route.useSearch()
   const [queue, setQueue] = useState<QueueItem[]>(() => makeQueue(search))
   const [stats, setStats] = useState({ done: 0, correct: 0, seconds: 0 })
+  const [notice, setNotice] = useState('')
+  useEffect(() => {
+    if (!notice) return
+    const t = setTimeout(() => setNotice(''), 3000)
+    return () => clearTimeout(t)
+  }, [notice])
   const total = useRef(queue.length)
   const current = queue[0]
 
@@ -109,8 +116,18 @@ function Review() {
     setQueue(rest)
   }
 
+  const skip = (ids: string[]) => {
+    setQueue(queue.slice(1).filter((it) => !ids.includes(it.def.id)))
+    setNotice('Suspendida. La podés reactivar desde Ajustes.')
+  }
+
   return (
     <div className="review">
+      {notice && (
+        <p className="notice" role="status">
+          {notice}
+        </p>
+      )}
       <div className="review-top">
         <Link to="/" className="icon-btn" aria-label="Salir">
           ✕
@@ -120,12 +137,20 @@ function Review() {
         </div>
         <span className="muted small">{queue.length}</span>
       </div>
-      <ReviewCard key={current.key} item={current} onDone={finish} />
+      <ReviewCard key={current.key} item={current} onDone={finish} onSkip={skip} />
     </div>
   )
 }
 
-function ReviewCard({ item, onDone }: { item: QueueItem; onDone: (g: Grade | null, seconds: number) => void }) {
+function ReviewCard({
+  item,
+  onDone,
+  onSkip,
+}: {
+  item: QueueItem
+  onDone: (g: Grade | null, seconds: number) => void
+  onSkip: (ids: string[]) => void
+}) {
   const { def } = item
   const seen = useMemo(() => new Set(getData().seen), [])
   const intro = useMemo(() => (item.isNew && !item.introduced ? buildIntro(def, seen) : null), [item, def, seen])
@@ -143,7 +168,7 @@ function ReviewCard({ item, onDone }: { item: QueueItem; onDone: (g: Grade | nul
     if (!autoSpeak) return
     if (phase === 'intro' && intro?.speak) speak(intro.speak)
     if (phase === 'question' && prompt.speakQuestion && prompt.speak) speak(prompt.speak)
-    if (phase === 'answer' && !prompt.speakQuestion && prompt.speak) speak(prompt.speak)
+    if (phase === 'answer' && !prompt.speakQuestion && !prompt.dictation && prompt.speak) speak(prompt.speak)
   }, [phase, autoSpeak, intro, prompt])
 
   const submit = (value: string) => {
@@ -175,6 +200,7 @@ function ReviewCard({ item, onDone }: { item: QueueItem; onDone: (g: Grade | nul
   if (phase === 'intro' && intro) {
     return (
       <div className="card review-card intro">
+        <CardMenu def={def} question={intro.title} expected={intro.lines.join(' · ')} given="" onSuspend={onSkip} />
         <span className="pill new">Nuevo</span>
         <h2 className="intro-title">
           {intro.title}
@@ -207,6 +233,7 @@ function ReviewCard({ item, onDone }: { item: QueueItem; onDone: (g: Grade | nul
 
   return (
     <div className="card review-card">
+      <CardMenu def={def} question={prompt.question} expected={prompt.reveal} given={given} onSuspend={onSkip} />
       <span className="label">{prompt.label}</span>
       <Question prompt={prompt} phase={phase} given={given} verdict={verdict} onSubmit={submit} onReveal={() => setPhase('answer')} />
 
@@ -266,11 +293,11 @@ function Question({
 
   return (
     <>
-      <h2 className="question">
+      <h2 className={`question ${prompt.dictation ? 'small-q' : ''}`}>
         {prompt.question}
         {prompt.speakQuestion && prompt.speak && <SpeakBtn text={prompt.speak} />}
       </h2>
-      {prompt.hint && <p className="hint">{prompt.hint}</p>}
+      {prompt.dictation ? <Dictation text={prompt.speak!} hint={prompt.hint} /> : prompt.hint && <p className="hint">{prompt.hint}</p>}
 
       {prompt.mode === 'flip' && !answered && (
         <button className="btn primary big" onClick={onReveal}>
@@ -327,6 +354,32 @@ function Question({
         </div>
       )}
     </>
+  )
+}
+
+/** Dictado: se reproduce al aparecer; se puede repetir, escuchar más lento o ver la traducción */
+function Dictation({ text, hint }: { text: string; hint?: string }) {
+  const [showHint, setShowHint] = useState(false)
+  useEffect(() => speak(text), [text])
+  return (
+    <div className="dictation">
+      <div className="btn-row">
+        <button type="button" className="btn" onClick={() => speak(text)}>
+          🔊 Escuchar
+        </button>
+        <button type="button" className="btn" onClick={() => speak(text, 0.6)}>
+          🐢 Más lento
+        </button>
+      </div>
+      {hint &&
+        (showHint ? (
+          <p className="hint">{hint}</p>
+        ) : (
+          <button type="button" className="btn ghost small" onClick={() => setShowHint(true)}>
+            Ver traducción
+          </button>
+        ))}
+    </div>
   )
 }
 

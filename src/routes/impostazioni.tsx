@@ -4,12 +4,15 @@ import { SyncPanel } from '../components/SyncPanel'
 import { LEVELS } from '../data/verbs'
 import { AREA_LABEL, type Area } from '../lib/cards'
 import { canSpeak, speak } from '../lib/speech'
-import { exportData, importData, resetAll, today, updateSettings, useData } from '../lib/store'
+import { exportData, importData, resetAll, setSuspended, today, updateSettings, useData } from '../lib/store'
 
 export const Route = createFileRoute('/impostazioni')({ component: Settings })
 
 function Settings() {
-  const { settings } = useData()
+  const { settings, suspended } = useData()
+  const suspendedIds = Object.entries(suspended)
+    .filter(([, s]) => s.on)
+    .map(([id]) => id)
   const fileRef = useRef<HTMLInputElement>(null)
   const [msg, setMsg] = useState('')
   const [confirmReset, setConfirmReset] = useState(false)
@@ -109,6 +112,19 @@ function Settings() {
           </label>
         ))}
       </section>
+
+      {suspendedIds.length > 0 && (
+        <section className="card stack">
+          <div className="row-between">
+            <span>Tarjetas suspendidas</span>
+            <span className="pill small">{suspendedIds.length}</span>
+          </div>
+          <p className="muted small">No aparecen en los repasos. Las palabras también se reactivan una por una desde su tema.</p>
+          <button className="btn small" onClick={() => setSuspended(suspendedIds, false)}>
+            Reactivar todas
+          </button>
+        </section>
+      )}
 
       {canSpeak() && (
         <section className="card stack">

@@ -1,4 +1,5 @@
 import { applyRemote, getData, onLocalChange, patchSync, setSync, toPayload } from './store'
+import { flushReports } from './reports'
 import { generateCode, isValidCode, normalizeCode, parsePayload } from './sync-core'
 
 const ENDPOINT = '/api/sync'
@@ -94,8 +95,12 @@ export function initSync() {
   if (started || typeof window === 'undefined') return
   started = true
   onLocalChange(schedule)
-  window.addEventListener('online', () => void syncNow())
+  window.addEventListener('online', () => {
+    void syncNow()
+    void flushReports()
+  })
   // al ocultarse sube lo último; al volver trae lo que se hizo en otro dispositivo
   document.addEventListener('visibilitychange', () => void syncNow())
   void syncNow()
+  void flushReports()
 }

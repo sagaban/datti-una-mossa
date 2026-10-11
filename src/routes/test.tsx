@@ -19,7 +19,7 @@ interface Answer {
 
 function sample(level: Level): CardDef[] {
   // el test sólo usa preguntas que se pueden corregir solas (sin autoevaluación)
-  const pool = CATALOG.filter((c) => c.level === level && c.kind !== 'vocab-r')
+  const pool = CATALOG.filter((c) => c.level === level && c.kind !== 'vocab-r' && c.kind !== 'dictation')
   const byArea = new Map<Area, CardDef[]>()
   for (const c of pool) byArea.set(c.area, [...(byArea.get(c.area) ?? []), c])
   const out: CardDef[] = []

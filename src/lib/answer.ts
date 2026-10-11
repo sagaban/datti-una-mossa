@@ -12,7 +12,7 @@ export function normalize(s: string): string {
     .toLowerCase()
     .trim()
     .replace(/[’`´]/g, "'")
-    .replace(/[.!?¿¡,;:]/g, '')
+    .replace(/[.!?¿¡,;:“”"«»…—–]/g, '')
     .replace(/\s+/g, ' ')
     .replace(/'\s+/g, "'")
 }
@@ -49,7 +49,9 @@ function compare(given: string, expected: string): Verdict {
   const eNoArt = stripArticle(e)
   if (eNoArt !== e && stripAccents(g) === stripAccents(eNoArt)) return 'article'
   const dist = Math.min(levenshtein(stripAccents(g), stripAccents(e)), levenshtein(stripAccents(g), stripAccents(eNoArt)))
-  if (eNoArt.length >= 5 && dist === 1) return 'typo'
+  // en frases largas (dictado, expresiones) se toleran 2 errores de tipeo
+  const maxTypos = eNoArt.length >= 20 ? 2 : 1
+  if (eNoArt.length >= 5 && dist >= 1 && dist <= maxTypos) return 'typo'
   return 'wrong'
 }
 

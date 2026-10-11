@@ -1,6 +1,7 @@
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 import { Practice } from '../../components/Practice'
 import { GRAMMAR } from '../../data/grammar'
+import { fillBlank } from '../../lib/cards'
 import { markSeen } from '../../lib/store'
 
 export const Route = createFileRoute('/lezioni/$id')({
@@ -41,7 +42,7 @@ function Lesson() {
           hint: e.es,
           answers: e.a,
           options: e.opts,
-          reveal: e.s.replace('___', e.a[0]),
+          reveal: fillBlank(e),
         }))}
       />
     </div>
