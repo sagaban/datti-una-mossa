@@ -59,15 +59,18 @@ function Home() {
               : 'Ya viste todas las nuevas de hoy'}
         </p>
         <div className="btn-col">
-          <Link to="/repaso" search={{ max: 12 }} className="btn primary big">
+          <Link to="/repaso" search={{ max: 12 }} className="btn primary big stacked">
             Sesión rápida · ~3 min
+            <span className="btn-hint">Hasta 12 tarjetas: lo más atrasado primero y, si sobra lugar, alguna nueva</span>
           </Link>
-          <Link to="/repaso" search={{}} className="btn big">
+          <Link to="/repaso" search={{}} className="btn big stacked">
             Repasar todo
+            <span className="btn-hint">Todo lo pendiente de hoy más las nuevas que te quedan del día</span>
           </Link>
           {!due.length && fresh === 0 && (
-            <Link to="/repaso" search={{ extra: 5 }} className="btn ghost">
+            <Link to="/repaso" search={{ extra: 5 }} className="btn ghost stacked">
               Quiero 5 nuevas más
+              <span className="btn-hint">Por encima del cupo diario: suman repasos en los próximos días</span>
             </Link>
           )}
         </div>
