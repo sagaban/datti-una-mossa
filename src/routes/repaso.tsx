@@ -117,8 +117,9 @@ function Review() {
     }
     const next = review(current.def.id, grade, seconds)
     setStats((s) => ({ done: s.done + 1, correct: s.correct + (grade === Rating.Again ? 0 : 1), seconds: s.seconds + seconds }))
-    // pasos de aprendizaje: si vuelve en menos de 20 min, se repite en esta sesión
-    if (next.due.getTime() - Date.now() < 20 * 60_000 && current.requeues < 3) {
+    // sólo lo fallado se vuelve a preguntar en la ronda (hasta 2 veces más). Lo acertado queda
+    // en el paso de aprendizaje que fijó FSRS (p. ej. 10 min) y sale en la próxima ronda.
+    if (grade === Rating.Again && next.due.getTime() - Date.now() < 20 * 60_000 && current.requeues < 2) {
       const pos = Math.min(rest.length, 3 + Math.floor(Math.random() * 3))
       rest.splice(pos, 0, { ...current, key: keySeq++, isNew: false, requeues: current.requeues + 1 })
     }

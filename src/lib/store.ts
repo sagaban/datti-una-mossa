@@ -346,12 +346,13 @@ function orderedCatalog(): CardDef[] {
   return [...CATALOG.filter((d) => !isLower(d)), ...CATALOG.filter(isLower)]
 }
 
-export function nextNewCards(limit: number, area?: Area): CardDef[] {
+export function nextNewCards(limit: number, area?: Area, skipSiblings?: Set<string>): CardDef[] {
   const out: CardDef[] = []
   for (const def of orderedCatalog()) {
     if (out.length >= limit) break
     if (data.cards[def.id] || !enabled(def) || !unlocked(def)) continue
     if (area && def.area !== area) continue
+    if (skipSiblings?.has(siblingKey(def.id))) continue
     out.push(def)
   }
   return out
@@ -369,6 +370,27 @@ export function reviewsLeft(): number {
   return Math.max(0, max - (allDays()[today()]?.reviews ?? 0))
 }
 
+/**
+ * Tarjetas "hermanas" (misma palabra en los dos sentidos, o un ejercicio y su dictado):
+ * si salen en la misma ronda, la segunda parece repetida y además se responde con la
+ * memoria de hace un minuto. Comparten clave y sólo entra una por ronda.
+ */
+export function siblingKey(id: string): string {
+  if (id.startsWith('v:')) return id.replace(/:[rp]$/, '')
+  if (id.startsWith('d:')) return `g:${id.slice(2)}`
+  return id
+}
+
+function oneSibling(defs: CardDef[]): CardDef[] {
+  const taken = new Set<string>()
+  return defs.filter((d) => {
+    const k = siblingKey(d.id)
+    if (taken.has(k)) return false
+    taken.add(k)
+    return true
+  })
+}
+
 export function buildSession(opts: {
   max?: number
   area?: Area
@@ -377,17 +399,20 @@ export function buildSession(opts: {
   /** repasar los puntos débiles aunque no estén vencidos */
   weak?: boolean
 }): SessionItem[] {
-  if (opts.weak) return weakCards(opts.max ?? 20).map((def) => ({ def, isNew: false }))
+  if (opts.weak) return oneSibling(weakCards(opts.max ?? 20)).map((def) => ({ def, isNew: false }))
   // dueCards viene ordenado por vencimiento: los más atrasados primero
   let due = dueCards()
   if (opts.area) due = due.filter((d) => d.area === opts.area)
+  // la hermana que queda afuera sigue vencida: sale en la próxima ronda
+  due = oneSibling(due)
   const max = opts.max ?? Infinity
   const allowed = reviewsLeft() + (opts.extraReviews ?? 0)
   const dueTake = due.slice(0, Math.min(max, allowed))
   // con repasos atrasados que no entran hoy, sumar nuevas sólo agranda la pila: se pausan (salvo pedido explícito)
   const backlog = due.length > allowed
   const budget = backlog ? (opts.extraNew ?? 0) : newBudget() + (opts.extraNew ?? 0)
-  const fresh = nextNewCards(Math.min(budget, Math.max(0, max - dueTake.length)), opts.area)
+  const takenToday = new Set(dueTake.map((d) => siblingKey(d.id)))
+  const fresh = nextNewCards(Math.min(budget, Math.max(0, max - dueTake.length)), opts.area, takenToday)
 
   // intercalar: una nueva cada ~3 repasos
   const out: SessionItem[] = []

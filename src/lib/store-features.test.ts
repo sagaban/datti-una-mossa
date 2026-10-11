@@ -12,6 +12,7 @@ import {
   review,
   reviewsLeft,
   setSuspended,
+  siblingKey,
   updateSettings,
   weakCards,
 } from './store'
@@ -33,6 +34,22 @@ describe('nivel inicial', () => {
   })
   it('con A1 el orden es el del catálogo', () => {
     expect(nextNewCards(5).map((d) => d.id)).toEqual(CATALOG.filter((d) => d.kind !== 'vocab-p' && d.kind !== 'dictation').slice(0, 5).map((d) => d.id))
+  })
+})
+
+describe('tarjetas hermanas', () => {
+  it('la misma palabra no sale en los dos sentidos en una ronda; la otra queda para la próxima', () => {
+    const w = CATALOG.find((d) => d.kind === 'vocab-p')!
+    const r = w.id.replace(/:p$/, ':r')
+    makeDue([r, w.id])
+    updateSettings({ newPerDay: 0 })
+    const ids = buildSession({}).map((i) => i.def.id)
+    expect(ids.filter((id) => id === r || id === w.id)).toHaveLength(1)
+    expect(dueCards().map((d) => d.id)).toEqual(expect.arrayContaining([r, w.id]))
+  })
+  it('un ejercicio de gramática y su dictado tampoco salen juntos', () => {
+    const d = CATALOG.find((c) => c.kind === 'dictation')!
+    expect(siblingKey(d.id)).toBe(siblingKey(d.id.replace(/^d:/, 'g:')))
   })
 })
 

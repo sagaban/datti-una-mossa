@@ -134,6 +134,8 @@ Los reflexivos se detectan por terminar en `-si`. Las formas con `/` indican var
 - **Tarjetas nuevas:** salen de `CATALOG` (intercalado por área, nivel por nivel) empezando en `settings.startLevel`; los niveles anteriores quedan al final. El cupo `newPerDay` es por persona: se suma entre dispositivos.
 - **Repasos:** se ordenan por vencimiento (los más atrasados primero) y se cortan en `settings.maxReviews` por día (0 = sin límite).
 - **Atraso:** si quedan pendientes que no entran hoy, las nuevas se pausan (`buildSession`), salvo pedido explícito (`extraNew`).
+- **Repeticiones en la ronda:** sólo lo fallado (Otra vez) se vuelve a preguntar en la misma ronda, hasta 2 veces más (`repaso.tsx`). Lo acertado queda en el paso de aprendizaje de FSRS y sale en la próxima ronda.
+- **Hermanas:** `siblingKey` agrupa `v:x:i:r` con `v:x:i:p` y `g:x:i` con `d:x:i`. Sólo entra una por ronda; la otra sigue vencida y sale en la siguiente.
 
 - **Prerrequisitos:** la producción de vocabulario (`:p`) se habilita cuando su reconocimiento (`:r`) está en estado Review; el dictado `d:x:i`, cuando el ejercicio `g:x:i` lo está. El dictado además necesita la voz del sistema (`canSpeak()`).
 - **Suspensiones:** `data.suspended[id] = { on, at }` se sincroniza por "gana el `at` más reciente", así reactivar también se propaga. En vocabulario se suspende la palabra entera (`:r` y `:p`).
