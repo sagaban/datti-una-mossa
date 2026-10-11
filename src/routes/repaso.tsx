@@ -4,6 +4,7 @@ import { type Grade, Rating } from 'ts-fsrs'
 import { VERDICT_MSG, type Verdict, check } from '../lib/answer'
 import { AREA_LABEL, type Area, type Prompt, buildIntro, buildPrompt } from '../lib/cards'
 import { CardMenu } from '../components/CardMenu'
+import { PronounceBtn } from '../components/PronounceBtn'
 import { SpeakBtn } from '../components/SpeakBtn'
 import { speak } from '../lib/speech'
 import {
@@ -23,6 +24,7 @@ interface Search {
   area?: Area
   extra?: number
   extraReviews?: number
+  weak?: boolean
 }
 
 export const Route = createFileRoute('/repaso')({
@@ -31,6 +33,7 @@ export const Route = createFileRoute('/repaso')({
     area: typeof s.area === 'string' && s.area in AREA_LABEL ? (s.area as Area) : undefined,
     extra: typeof s.extra === 'number' ? s.extra : undefined,
     extraReviews: typeof s.extraReviews === 'number' ? s.extraReviews : undefined,
+    weak: s.weak === true ? true : undefined,
   }),
   component: Review,
 })
@@ -62,7 +65,8 @@ const GRADE_LABEL: Record<Grade, string> = {
 let keySeq = 0
 
 function makeQueue(search: Search): QueueItem[] {
-  return buildSession({ max: search.max, area: search.area, extraNew: search.extra, extraReviews: search.extraReviews }).map((it) => ({
+  const { max, area, extra, extraReviews, weak } = search
+  return buildSession({ max, area, extraNew: extra, extraReviews, weak }).map((it) => ({
     ...it,
     key: keySeq++,
     requeues: 0,
@@ -206,6 +210,8 @@ function ReviewCard({
           {intro.title}
           {intro.speak && <SpeakBtn text={intro.speak} />}
         </h2>
+        {/* en verbos la intro es la tabla entera: la pronunciación se practica en cada tarjeta */}
+        {intro.speak && def.kind !== 'verb' && <PronounceBtn text={intro.speak} />}
         <div className="intro-body">
           {intro.lines.map((l, i) => (
             <p key={i} className={l.startsWith('• ') ? 'example' : undefined}>
@@ -249,6 +255,7 @@ function ReviewCard({
             {prompt.reveal}
             {prompt.speak && <SpeakBtn text={prompt.speak} />}
           </p>
+          {prompt.speak && <PronounceBtn text={prompt.speak} />}
           {prompt.note && <p className="note">💡 {prompt.note}</p>}
 
           <p className="muted small center">{verdict ? '¿Coincidís con la corrección?' : '¿Qué tan bien lo sabías?'}</p>

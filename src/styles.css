@@ -853,3 +853,20 @@ textarea.input {
 .dot.suspended {
   border-style: dashed;
 }
+.weak-title {
+  width: 100%;
+  gap: 8px;
+}
+.pronounce {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ok-txt {
+  color: var(--green);
+  font-weight: 600;
+}
+.pill {
+  white-space: nowrap;
+}

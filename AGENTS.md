@@ -11,6 +11,8 @@ PWA para aprender italiano en ratos libres, pensada para **hispanohablantes riop
 - **Secciones para explorar:** Palabras (vocabulario por tema), Gramática (lecciones A1–C1 con práctica), Verbos (tablas de 11 tiempos), Test (autoevaluación por nivel) y Progreso.
 - **Escucha (dictado):** la app lee una frase de un ejercicio de gramática ya practicado y se escribe completa.
 - **Suspender tarjetas** y **reportar errores de contenido** desde el menú "⋯" de cada tarjeta.
+- **Pronunciación:** botón 🎙️ con el reconocimiento de voz del navegador (`lib/pronounce.ts`). No afecta FSRS.
+- **Puntos débiles** en Progreso (`weakCards`: lapses ≥ 2 o dificultad ≥ 8), con sesión propia (`/repaso?weak=true`).
 - **Sincronización opcional entre dispositivos** con un código aleatorio (Netlify Function + Netlify Blobs).
 
 Idioma: la UI, los comentarios y los commits van en **español rioplatense** (voseo: "tocá", "revisá"). El contenido de estudio es italiano estándar.
@@ -69,6 +71,8 @@ src/
     sync-core.ts            fusión/validación de sync: código puro compartido con el servidor
     sync.ts                 cuándo sincronizar (cliente)
     speech.ts               voz italiana (Web Speech API)
+    pronounce.ts            reconocimiento de voz y comparación de lo dicho
+    reports.ts              reportes de errores con cola offline
   components/               Practice (práctica libre), SpeakBtn, SyncPanel
   routes/                   index (inicio), repaso (sesión), vocab/, lezioni/, verbi/, test, progressi, impostazioni, sincronizar
 netlify/functions/sync.mts  POST/DELETE /api/sync

@@ -18,6 +18,8 @@ https://datti-una-mossa.netlify.app
 - Pronunciación con la voz italiana del sistema (Web Speech API).
 - **Escucha (dictado)**: la app lee una frase de los ejercicios que ya practicaste y la escribís completa, con opción de escucharla más lento o ver la traducción.
 - **Suspender tarjetas** ("ya la sé" / "no me interesa") y **reportar errores** de contenido desde el menú ⋯ de cada tarjeta.
+- **Práctica de pronunciación**: botón 🎙️ "Decilo vos" que usa el reconocimiento de voz del navegador en italiano (Chrome, Edge, Safari) y te dice si se entendió. No afecta la nota.
+- **Tus puntos débiles** (en Progreso): las tarjetas que más fallás, con un botón para repasarlas aparte.
 - Secciones para recorrer vocabulario (con audio y estado de cada palabra), gramática y verbos, con práctica libre.
 - **Sincronización entre dispositivos** sin cuentas: un código aleatorio de 160 bits (o un link) empareja el celular y la compu. El progreso se guarda en Netlify Blobs bajo el hash del código; por tarjeta gana el repaso más reciente y las estadísticas se llevan por dispositivo. Funciona offline y sincroniza al abrir, al volver la conexión, al pasar a segundo plano y después de repasar.
 - Exportar/importar el progreso en JSON.
@@ -39,7 +41,7 @@ La investigación en adquisición de segundas lenguas y en psicología del apren
 | **Aprovechar los cognados** | Los cognados se aprenden casi gratis. El esfuerzo conviene ponerlo en lo que no se parece al español. | Las palabras transparentes (*il telefono*, *importante*) sólo se repasan en reconocimiento; las que no se parecen o tienen trampa también se practican escribiéndolas. |
 | **Práctica distribuida en sesiones cortas** | Pocos minutos frecuentes rinden más que sesiones largas y espaciadas. | "Sesión rápida" de ~3 minutos, cupo diario de tarjetas nuevas y racha de días para sostener el hábito. |
 | **Autoevaluación y metacognición** | Juzgar qué tan bien se sabe algo, y comprobarlo, ayuda a dirigir el estudio. | Después de cada respuesta calificás qué tan bien la sabías (Otra vez / Difícil / Bien / Fácil) y ves cuándo volverá. Los **tests por nivel** muestran tu resultado por área y mandan los errores al repaso. |
-| **Pronunciación y escucha** | Asociar la palabra escrita con su sonido ayuda a recordarla y a reconocerla al oírla. | Audio en italiano (voz del sistema) en palabras, conjugaciones y frases, con lectura automática opcional. |
+| **Pronunciación y escucha** | Asociar la palabra escrita con su sonido ayuda a recordarla y a reconocerla al oírla. | Audio en italiano (voz del sistema) en palabras, conjugaciones y frases; **dictado** de frases ya practicadas; y práctica de pronunciación con reconocimiento de voz. |
 
 ### Lo que la app no cubre (y conviene sumar)
 

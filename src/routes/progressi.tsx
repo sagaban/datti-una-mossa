@@ -1,11 +1,12 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { AREA_LABEL, type Area } from '../lib/cards'
-import { allDays, areaProgress, streak, today, useData } from '../lib/store'
+import { Link, createFileRoute } from '@tanstack/react-router'
+import { AREA_LABEL, type Area, describeCard } from '../lib/cards'
+import { allDays, areaProgress, streak, today, useData, weakCards } from '../lib/store'
 
 export const Route = createFileRoute('/progressi')({ component: Progress })
 
 function Progress() {
-  useData()
+  const { cards } = useData()
+  const weak = weakCards(10)
   const dayLogs = allDays()
   const progress = areaProgress()
   const days = Array.from({ length: 14 }, (_, i) => {
@@ -70,6 +71,35 @@ function Progress() {
             </div>
           )
         })}
+      </section>
+
+      <section className="card stack">
+        <h3 className="section-title">Tus puntos débiles</h3>
+        {weak.length ? (
+          <>
+            <p className="muted small">Lo que más te cuesta: tarjetas que fallaste varias veces o que FSRS ve difíciles.</p>
+            <div className="list">
+              {weak.map((def) => {
+                const { title, subtitle } = describeCard(def)
+                const lapses = cards[def.id]?.lapses ?? 0
+                return (
+                  <div key={def.id} className="list-item col">
+                    <span className="row-between weak-title">
+                      <strong>{title}</strong>
+                      {lapses > 0 && <span className="pill small">{lapses}× fallada</span>}
+                    </span>
+                    <span className="muted small">{subtitle}</span>
+                  </div>
+                )
+              })}
+            </div>
+            <Link to="/repaso" search={{ weak: true }} className="btn primary">
+              Repasarlos ahora
+            </Link>
+          </>
+        ) : (
+          <p className="muted small">Todavía no hay: acá aparecen las tarjetas que fallás seguido.</p>
+        )}
       </section>
     </div>
   )

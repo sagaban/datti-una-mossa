@@ -1,6 +1,20 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { Rating } from 'ts-fsrs'
-import { buildSession, dueCards, getData, isSuspended, makeDue, nextNewCards, resetAll, review, reviewsLeft, setSuspended, updateSettings } from './store'
+import {
+  applyRemote,
+  buildSession,
+  dueCards,
+  getData,
+  isSuspended,
+  makeDue,
+  nextNewCards,
+  resetAll,
+  review,
+  reviewsLeft,
+  setSuspended,
+  updateSettings,
+  weakCards,
+} from './store'
 import { CATALOG } from './cards'
 
 beforeEach(() => resetAll())
@@ -102,5 +116,30 @@ describe('dictado', () => {
     } finally {
       delete g2.window
     }
+  })
+})
+
+describe('puntos débiles', () => {
+  const card = (lapses: number, difficulty: number) => ({
+    due: new Date(Date.now() + 864e5).toISOString(),
+    stability: 2,
+    difficulty,
+    elapsed_days: 0,
+    scheduled_days: 1,
+    learning_steps: 0,
+    reps: 6,
+    lapses,
+    state: 2,
+    last_review: new Date().toISOString(),
+  })
+  it('lista primero las más falladas, sin las fáciles ni las suspendidas, y arma una sesión con ellas', () => {
+    const [a, b, c, d] = CATALOG.filter((x) => x.kind === 'vocab-r')
+    applyRemote(
+      { v: 1, cards: { [a.id]: card(2, 6), [b.id]: card(5, 7), [c.id]: card(0, 3), [d.id]: card(3, 9) }, seen: [], settings: {}, settingsUpdatedAt: 0, devices: {}, logs: [], suspended: {} },
+      {},
+    )
+    setSuspended([d.id], true)
+    expect(weakCards().map((x) => x.id)).toEqual([b.id, a.id])
+    expect(buildSession({ weak: true }).map((i) => i.def.id)).toEqual([b.id, a.id])
   })
 })

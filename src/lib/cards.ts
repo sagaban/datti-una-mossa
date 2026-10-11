@@ -291,3 +291,28 @@ export function buildIntro(def: CardDef, seenGroups: Set<string>): Intro | null 
     }
   }
 }
+
+/** Texto corto para listar una tarjeta (p. ej. en "puntos débiles") */
+export function describeCard(def: CardDef): { title: string; subtitle: string } {
+  switch (def.kind) {
+    case 'vocab-r':
+    case 'vocab-p': {
+      const { it, es } = vocabEntry(def.id)
+      return { title: it, subtitle: es }
+    }
+    case 'verb': {
+      const [, inf, tense] = def.id.split(':') as [string, string, Tense]
+      return { title: `${inf} · ${TENSE_LABEL[tense]}`, subtitle: VERBS.find((v) => v.inf === inf)!.es }
+    }
+    case 'grammar':
+    case 'dictation': {
+      const [, topicId, idx] = def.id.split(':')
+      const ex = GRAMMAR.find((g) => g.id === topicId)!.ex[Number(idx)]
+      return { title: fillBlank(ex).replace(/\s*\([^)]*\)/g, ''), subtitle: ex.es }
+    }
+    case 'ff': {
+      const f = FALSE_FRIENDS[Number(def.id.split(':')[1])]
+      return { title: f.it, subtitle: `= ${f.means} (no “${f.trap}”)` }
+    }
+  }
+}

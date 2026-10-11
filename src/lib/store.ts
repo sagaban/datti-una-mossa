@@ -322,6 +322,16 @@ export function dueCards(now = new Date()): CardDef[] {
     .filter((d): d is CardDef => !!d && enabled(d))
 }
 
+/** Lo que más cuesta: tarjetas falladas 2+ veces o con dificultad FSRS alta, peores primero */
+export function weakCards(limit = 20): CardDef[] {
+  return Object.entries(data.cards)
+    .filter(([, c]) => c.lapses >= 2 || (c.difficulty >= 8 && c.reps >= 3))
+    .sort(([, a], [, b]) => b.lapses - a.lapses || b.difficulty - a.difficulty)
+    .map(([id]) => CARD_BY_ID.get(id))
+    .filter((d): d is CardDef => !!d && enabled(d))
+    .slice(0, limit)
+}
+
 export function newBudget(): number {
   // el cupo de nuevas es por persona, no por dispositivo
   const introduced = allDays()[today()]?.introduced ?? 0
@@ -359,7 +369,15 @@ export function reviewsLeft(): number {
   return Math.max(0, max - (allDays()[today()]?.reviews ?? 0))
 }
 
-export function buildSession(opts: { max?: number; area?: Area; extraNew?: number; extraReviews?: number }): SessionItem[] {
+export function buildSession(opts: {
+  max?: number
+  area?: Area
+  extraNew?: number
+  extraReviews?: number
+  /** repasar los puntos débiles aunque no estén vencidos */
+  weak?: boolean
+}): SessionItem[] {
+  if (opts.weak) return weakCards(opts.max ?? 20).map((def) => ({ def, isNew: false }))
   // dueCards viene ordenado por vencimiento: los más atrasados primero
   let due = dueCards()
   if (opts.area) due = due.filter((d) => d.area === opts.area)
