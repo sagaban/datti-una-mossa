@@ -31,16 +31,20 @@ export function matchSpeech(heard: string[], expected: string): { ok: boolean; b
 
 interface RecognitionResult {
   readonly length: number
+  readonly isFinal: boolean
   [i: number]: { transcript: string }
 }
 interface Recognition {
   lang: string
   maxAlternatives: number
   interimResults: boolean
-  onresult: ((e: { results: { [i: number]: RecognitionResult } }) => void) | null
+  continuous: boolean
+  onresult: ((e: { resultIndex: number; results: { length: number; [i: number]: RecognitionResult } }) => void) | null
   onerror: ((e: { error: string }) => void) | null
   onend: (() => void) | null
+  onaudiostart: (() => void) | null
   start(): void
+  stop(): void
   abort(): void
 }
 type RecognitionCtor = new () => Recognition
@@ -55,34 +59,64 @@ export const canListen = () => !!ctor()
 
 export type ListenError = 'not-allowed' | 'no-speech' | 'unsupported' | 'other'
 
-/** Escucha una frase en italiano y devuelve las alternativas reconocidas */
-export function listen(timeoutMs = 7000): Promise<string[]> {
+/**
+ * Escucha una frase en italiano y devuelve las alternativas reconocidas.
+ * En el celular hay que ser tolerante: Safari en iOS a veces nunca marca un resultado
+ * como final y termina igual, y Chrome en Android corta enseguida. Por eso se piden
+ * resultados parciales y, si al terminar hay algo reconocido, se usa eso.
+ */
+export function listen(timeoutMs = 8000): Promise<string[]> {
   const C = ctor()
   if (!C) return Promise.reject<string[]>('unsupported' satisfies ListenError)
+  // la voz de la app sonando mientras se abre el micrófono lo confunde (y en iOS lo bloquea)
+  if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel()
   return new Promise((resolve, reject) => {
     const rec = new C()
     rec.lang = 'it-IT'
     rec.maxAlternatives = 5
-    rec.interimResults = false
+    rec.interimResults = true
+    rec.continuous = false
+    let heard: string[] = []
     let done = false
+    let timer: ReturnType<typeof setTimeout> | undefined
     const finish = (fn: () => void) => {
       if (done) return
       done = true
       clearTimeout(timer)
       fn()
     }
-    const timer = setTimeout(() => (rec.abort(), finish(() => reject('no-speech' satisfies ListenError))), timeoutMs)
+    // el tiempo corre desde que el micrófono está abierto, no mientras se pide el permiso;
+    // al vencer se usa stop() (no abort()) para que el navegador entregue lo que ya oyó
+    const arm = () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => rec.stop(), timeoutMs)
+    }
+    rec.onaudiostart = arm
     rec.onresult = (e) => {
-      const r = e.results[0]
       const alts: string[] = []
-      for (let i = 0; i < r.length; i++) alts.push(r[i].transcript)
-      finish(() => resolve(alts))
+      const parts = Array.from({ length: e.results.length }, (_, i) => e.results[i])
+      const first = parts[0]
+      if (!first) return
+      // con una sola frase alcanzan las alternativas del primer resultado; si el navegador
+      // la partió en varios, se arma la frase completa con la mejor de cada uno
+      if (parts.length === 1) for (let i = 0; i < first.length; i++) alts.push(first[i].transcript)
+      else alts.push(parts.map((r) => r[0]?.transcript ?? '').join(' '))
+      if (alts.some((a) => a.trim())) heard = alts.map((a) => a.trim()).filter(Boolean)
+      if (parts.every((r) => r.isFinal)) finish(() => resolve(heard))
     }
     rec.onerror = (e) => {
-      const err: ListenError = e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'not-allowed' : e.error === 'no-speech' ? 'no-speech' : 'other'
+      if (heard.length && e.error !== 'not-allowed') return finish(() => resolve(heard))
+      const err: ListenError =
+        e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'not-allowed' : e.error === 'no-speech' || e.error === 'aborted' ? 'no-speech' : 'other'
       finish(() => reject(err))
     }
-    rec.onend = () => finish(() => reject('no-speech' satisfies ListenError))
-    rec.start()
+    rec.onend = () => finish(() => (heard.length ? resolve(heard) : reject('no-speech' satisfies ListenError)))
+    // por si el navegador nunca avisa que abrió el micrófono
+    timer = setTimeout(() => rec.stop(), timeoutMs + 7000)
+    try {
+      rec.start()
+    } catch {
+      finish(() => reject('other' satisfies ListenError))
+    }
   })
 }
