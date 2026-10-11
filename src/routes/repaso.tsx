@@ -35,8 +35,14 @@ export const Route = createFileRoute('/repaso')({
     extraReviews: typeof s.extraReviews === 'number' ? s.extraReviews : undefined,
     weak: s.weak === true ? true : undefined,
   }),
-  component: Review,
+  component: ReviewRoute,
 })
+
+/** Si cambian los parámetros sin salir de /repaso, la sesión se arma de nuevo */
+function ReviewRoute() {
+  const search = Route.useSearch()
+  return <Review key={JSON.stringify(search)} />
+}
 
 type Phase = 'intro' | 'question' | 'answer'
 
@@ -86,8 +92,8 @@ function Review() {
   const total = useRef(queue.length)
   const current = queue[0]
 
-  const restart = (extraReviews?: number) => {
-    const q = makeQueue({ max: extraReviews ?? 12, area: search.area, extraReviews })
+  const restart = (opts: Search = {}) => {
+    const q = makeQueue({ max: 12, area: search.area, ...opts })
     total.current = q.length
     setStats({ done: 0, correct: 0, seconds: 0 })
     setQueue(q)
@@ -413,7 +419,7 @@ function Summary({
   stats: { done: number; correct: number; seconds: number }
   empty: boolean
   capped: boolean
-  onRestart: (extraReviews?: number) => void
+  onRestart: (opts?: Search) => void
 }) {
   if (empty && capped) {
     return (
@@ -423,7 +429,7 @@ function Summary({
           Llegaste al límite de {getData().settings.maxReviews} repasos de hoy. Lo que queda vuelve mañana, empezando por lo más
           atrasado. Podés cambiar el límite en Ajustes.
         </p>
-        <button className="btn primary" onClick={() => onRestart(20)}>
+        <button className="btn primary" onClick={() => onRestart({ max: 20, extraReviews: 20 })}>
           Repasar 20 más igual
         </button>
         <Link to="/" className="btn ghost">
@@ -437,9 +443,9 @@ function Summary({
       <div className="card center stack">
         <h2>Nada pendiente 🎉</h2>
         <p className="muted">No hay repasos ni tarjetas nuevas para hoy en esta sección.</p>
-        <Link to="/repaso" search={{ extra: 5 }} className="btn primary">
+        <button className="btn primary" onClick={() => onRestart({ extra: 5 })}>
           Aprender 5 nuevas
-        </Link>
+        </button>
         <Link to="/test" className="btn">
           Hacer un test
         </Link>
