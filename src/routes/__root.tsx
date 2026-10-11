@@ -44,7 +44,7 @@ const NAV = [
   { to: '/vocab', label: 'Palabras', icon: 'Aa' },
   { to: '/lezioni', label: 'Gramática', icon: '¶' },
   { to: '/verbi', label: 'Verbos', icon: '≡' },
-  { to: '/test', label: 'Test', icon: '✓' },
+  { to: '/letture', label: 'Leer', icon: '❝' },
   { to: '/progressi', label: 'Progreso', icon: '↗' },
 ] as const
 

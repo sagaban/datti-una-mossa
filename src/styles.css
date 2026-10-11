@@ -870,3 +870,59 @@ textarea.input {
 .pill {
   white-space: nowrap;
 }
+
+/* ——— Lecturas ——— */
+.reading-text {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  line-height: 1.75;
+}
+.reading-text p + p {
+  margin-top: 0.9em;
+}
+.w {
+  cursor: pointer;
+  border-radius: 4px;
+}
+.w:focus-visible {
+  outline: 2px solid var(--green);
+}
+.w.sel {
+  background: var(--amber-soft);
+  outline: 2px solid var(--amber-soft);
+}
+.reading {
+  padding-bottom: 180px;
+}
+.sheet {
+  position: fixed;
+  /* centrado sin transform: la animación de entrada usa transform */
+  left: 8px;
+  right: 8px;
+  margin: 0 auto;
+  max-width: 560px;
+  bottom: calc(env(safe-area-inset-bottom) + 64px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 20;
+  animation: rise 0.15s ease-out;
+}
+.sheet-word {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.4rem;
+}
+.sheet-es {
+  font-size: 1.1rem;
+}
+
+.nowrap {
+  white-space: nowrap;
+}

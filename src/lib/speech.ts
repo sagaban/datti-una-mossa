@@ -10,15 +10,34 @@ function pickVoice() {
 
 export const canSpeak = () => typeof window !== 'undefined' && 'speechSynthesis' in window
 
-export function speak(text: string, rate = 0.9) {
-  if (!canSpeak()) return
-  speechSynthesis.cancel()
+function utterance(text: string, rate: number) {
   const u = new SpeechSynthesisUtterance(text.replace(/___/g, '').replace(/\//g, ','))
   u.lang = 'it-IT'
   u.rate = rate
   const v = pickVoice()
   if (v) u.voice = v
-  speechSynthesis.speak(u)
+  return u
+}
+
+export function speak(text: string, rate = 0.9) {
+  if (!canSpeak()) return
+  speechSynthesis.cancel()
+  speechSynthesis.speak(utterance(text, rate))
+}
+
+/** Lee varios fragmentos seguidos (p. ej. los párrafos de una lectura); avisa al terminar */
+export function speakAll(parts: string[], rate = 0.9, onEnd?: () => void) {
+  if (!canSpeak() || !parts.length) return
+  speechSynthesis.cancel()
+  parts.forEach((p, i) => {
+    const u = utterance(p, rate)
+    if (i === parts.length - 1 && onEnd) u.onend = onEnd
+    speechSynthesis.speak(u)
+  })
+}
+
+export function stopSpeaking() {
+  if (canSpeak()) speechSynthesis.cancel()
 }
 
 if (canSpeak()) speechSynthesis.addEventListener?.('voiceschanged', () => (voice = undefined))

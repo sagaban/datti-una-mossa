@@ -15,6 +15,8 @@ import { Route as ProgressiRouteImport } from './routes/progressi'
 import { Route as RepasoRouteImport } from './routes/repaso'
 import { Route as SincronizarRouteImport } from './routes/sincronizar'
 import { Route as TestRouteImport } from './routes/test'
+import { Route as LettureIndexRouteImport } from './routes/letture/index'
+import { Route as LettureIdRouteImport } from './routes/letture/$id'
 import { Route as LezioniIndexRouteImport } from './routes/lezioni/index'
 import { Route as LezioniIdRouteImport } from './routes/lezioni/$id'
 import { Route as VerbiIndexRouteImport } from './routes/verbi/index'
@@ -50,6 +52,16 @@ const SincronizarRoute = SincronizarRouteImport.update({
 const TestRoute = TestRouteImport.update({
   id: '/test',
   path: '/test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LettureIndexRoute = LettureIndexRouteImport.update({
+  id: '/letture/',
+  path: '/letture/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LettureIdRoute = LettureIdRouteImport.update({
+  id: '/letture/$id',
+  path: '/letture/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LezioniIndexRoute = LezioniIndexRouteImport.update({
@@ -90,9 +102,11 @@ export interface FileRoutesByFullPath {
   '/repaso': typeof RepasoRoute
   '/sincronizar': typeof SincronizarRoute
   '/test': typeof TestRoute
+  '/letture/$id': typeof LettureIdRoute
   '/lezioni/$id': typeof LezioniIdRoute
   '/verbi/$inf': typeof VerbiInfRoute
   '/vocab/$id': typeof VocabIdRoute
+  '/letture/': typeof LettureIndexRoute
   '/lezioni/': typeof LezioniIndexRoute
   '/verbi/': typeof VerbiIndexRoute
   '/vocab/': typeof VocabIndexRoute
@@ -104,9 +118,11 @@ export interface FileRoutesByTo {
   '/repaso': typeof RepasoRoute
   '/sincronizar': typeof SincronizarRoute
   '/test': typeof TestRoute
+  '/letture/$id': typeof LettureIdRoute
   '/lezioni/$id': typeof LezioniIdRoute
   '/verbi/$inf': typeof VerbiInfRoute
   '/vocab/$id': typeof VocabIdRoute
+  '/letture': typeof LettureIndexRoute
   '/lezioni': typeof LezioniIndexRoute
   '/verbi': typeof VerbiIndexRoute
   '/vocab': typeof VocabIndexRoute
@@ -119,9 +135,11 @@ export interface FileRoutesById {
   '/repaso': typeof RepasoRoute
   '/sincronizar': typeof SincronizarRoute
   '/test': typeof TestRoute
+  '/letture/$id': typeof LettureIdRoute
   '/lezioni/$id': typeof LezioniIdRoute
   '/verbi/$inf': typeof VerbiInfRoute
   '/vocab/$id': typeof VocabIdRoute
+  '/letture/': typeof LettureIndexRoute
   '/lezioni/': typeof LezioniIndexRoute
   '/verbi/': typeof VerbiIndexRoute
   '/vocab/': typeof VocabIndexRoute
@@ -135,9 +153,11 @@ export interface FileRouteTypes {
     | '/repaso'
     | '/sincronizar'
     | '/test'
+    | '/letture/$id'
     | '/lezioni/$id'
     | '/verbi/$inf'
     | '/vocab/$id'
+    | '/letture/'
     | '/lezioni/'
     | '/verbi/'
     | '/vocab/'
@@ -149,9 +169,11 @@ export interface FileRouteTypes {
     | '/repaso'
     | '/sincronizar'
     | '/test'
+    | '/letture/$id'
     | '/lezioni/$id'
     | '/verbi/$inf'
     | '/vocab/$id'
+    | '/letture'
     | '/lezioni'
     | '/verbi'
     | '/vocab'
@@ -163,9 +185,11 @@ export interface FileRouteTypes {
     | '/repaso'
     | '/sincronizar'
     | '/test'
+    | '/letture/$id'
     | '/lezioni/$id'
     | '/verbi/$inf'
     | '/vocab/$id'
+    | '/letture/'
     | '/lezioni/'
     | '/verbi/'
     | '/vocab/'
@@ -178,9 +202,11 @@ export interface RootRouteChildren {
   RepasoRoute: typeof RepasoRoute
   SincronizarRoute: typeof SincronizarRoute
   TestRoute: typeof TestRoute
+  LettureIdRoute: typeof LettureIdRoute
   LezioniIdRoute: typeof LezioniIdRoute
   VerbiInfRoute: typeof VerbiInfRoute
   VocabIdRoute: typeof VocabIdRoute
+  LettureIndexRoute: typeof LettureIndexRoute
   LezioniIndexRoute: typeof LezioniIndexRoute
   VerbiIndexRoute: typeof VerbiIndexRoute
   VocabIndexRoute: typeof VocabIndexRoute
@@ -228,6 +254,20 @@ declare module '@tanstack/react-router' {
       path: '/test'
       fullPath: '/test'
       preLoaderRoute: typeof TestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/letture/': {
+      id: '/letture/'
+      path: '/letture'
+      fullPath: '/letture/'
+      preLoaderRoute: typeof LettureIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/letture/$id': {
+      id: '/letture/$id'
+      path: '/letture/$id'
+      fullPath: '/letture/$id'
+      preLoaderRoute: typeof LettureIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lezioni/': {
@@ -282,9 +322,11 @@ const rootRouteChildren: RootRouteChildren = {
   RepasoRoute: RepasoRoute,
   SincronizarRoute: SincronizarRoute,
   TestRoute: TestRoute,
+  LettureIdRoute: LettureIdRoute,
   LezioniIdRoute: LezioniIdRoute,
   VerbiInfRoute: VerbiInfRoute,
   VocabIdRoute: VocabIdRoute,
+  LettureIndexRoute: LettureIndexRoute,
   LezioniIndexRoute: LezioniIndexRoute,
   VerbiIndexRoute: VerbiIndexRoute,
   VocabIndexRoute: VocabIndexRoute,

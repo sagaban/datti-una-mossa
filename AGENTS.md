@@ -11,6 +11,7 @@ PWA para aprender italiano en ratos libres, pensada para **hispanohablantes riop
 - **Secciones para explorar:** Palabras (vocabulario por tema), Gramática (lecciones A1–C1 con práctica), Verbos (tablas de 11 tiempos), Test (autoevaluación por nivel) y Progreso.
 - **Escucha (dictado):** la app lee una frase de un ejercicio de gramática ya practicado y se escribe completa.
 - **Suspender tarjetas** y **reportar errores de contenido** desde el menú "⋯" de cada tarjeta.
+- **Lecturas graduadas** (pestaña "Leer"): 25 textos A1–C1 con glosario por palabra, audio y preguntas de comprensión; tocar una palabra permite sumarla al repaso.
 - **Pronunciación:** botón 🎙️ con el reconocimiento de voz del navegador (`lib/pronounce.ts`). No afecta FSRS.
 - **Puntos débiles** en Progreso (`weakCards`: lapses ≥ 2 o dificultad ≥ 8), con sesión propia (`/repaso?weak=true`).
 - **Sincronización opcional entre dispositivos** con un código aleatorio (Netlify Function + Netlify Blobs).
@@ -61,6 +62,7 @@ src/
     grammar-advanced.ts     B2/C1
     grammar-extra.ts        temas que completan cada nivel
     falseFriends.ts         falsos amigos ES↔IT
+    readings/               lecturas graduadas; index.ts junta solo todos los archivos de la carpeta (import.meta.glob)
     content-lock.json       candado de posiciones (ver invariante 1)
   lib/
     conjugate.ts            conjugador (regulares por reglas + irregulares + reflexivos + compuestos)
@@ -73,6 +75,7 @@ src/
     speech.ts               voz italiana (Web Speech API)
     pronounce.ts            reconocimiento de voz y comparación de lo dicho
     reports.ts              reportes de errores con cola offline
+    reading.ts              tokenización de lecturas y vínculo palabra → tarjeta de vocabulario
   components/               Practice (práctica libre), SpeakBtn, SyncPanel
   routes/                   index (inicio), repaso (sesión), vocab/, lezioni/, verbi/, test, progressi, impostazioni, sincronizar
 netlify/functions/sync.mts  POST/DELETE /api/sync
@@ -134,6 +137,13 @@ Los reflexivos se detectan por terminar en `-si`. Las formas con `/` indican var
 
 - **Prerrequisitos:** la producción de vocabulario (`:p`) se habilita cuando su reconocimiento (`:r`) está en estado Review; el dictado `d:x:i`, cuando el ejercicio `g:x:i` lo está. El dictado además necesita la voz del sistema (`canSpeak()`).
 - **Suspensiones:** `data.suspended[id] = { on, at }` se sincroniza por "gana el `at` más reciente", así reactivar también se propaga. En vocabulario se suspende la palabra entera (`:r` y `:p`).
+
+### 5. Lecturas
+
+- `id` estable (se guarda `r:{id}` en `data.seen` al terminar las preguntas): no renombrar.
+- Glosario: la clave es la palabra tal como la tokeniza `lib/reading.ts` (letras + apóstrofo de elisión, en minúsculas: "l’", "amico", "po’"). `lemma` sólo si coincide con una entrada del vocabulario o un infinitivo de `VERBS`; si es una expresión ("a fuoco basso"), sólo cuando aparece completa en el texto.
+- Una palabra sin `lemma` igual se vincula si coincide con una entrada del vocabulario, con o sin artículo ("zucchero" → "lo zucchero").
+- `readings.test.ts` valida longitud por nivel, claves presentes en el texto, lemas existentes, cobertura ≥ 60% y preguntas. Para agregar lecturas, creá un archivo nuevo en `src/data/readings/` que exporte un array de `Reading`: se incluye solo.
 
 ## Reportes de errores de contenido
 

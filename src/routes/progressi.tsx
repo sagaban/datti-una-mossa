@@ -52,6 +52,10 @@ function Progress() {
         </div>
       </section>
 
+      <Link to="/test" className="btn">
+        ✓ Hacer un test de nivel
+      </Link>
+
       <section className="card">
         <h3 className="section-title">Por área</h3>
         <p className="muted small">Vistas / consolidadas (intervalo de 3 semanas o más)</p>

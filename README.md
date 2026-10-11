@@ -13,11 +13,12 @@ https://datti-una-mossa.netlify.app
 - **Nivel inicial**: al empezar elegís cuánto italiano sabés (o hacés un test) y las tarjetas nuevas arrancan desde ese nivel; lo anterior queda para después.
 - **Límite diario de repasos** configurable: si se acumulan, van primero los más atrasados y las nuevas se pausan hasta ponerte al día.
 - **Historial de repasos** guardado y sincronizado, para poder optimizar FSRS con tus propios datos.
-- **Contenido**: ~2.800 palabras en 107 temas (A1–C1, elegidas con una lista de frecuencias del italiano hablado y revisadas), 136 verbos en 11 tiempos (incluido el passato remoto) y con reflexivos, 52 lecciones de gramática de A1 a C1 con 352 ejercicios y 39 falsos amigos español–italiano.
+- **Contenido**: 25 lecturas graduadas, ~2.800 palabras en 107 temas (A1–C1, elegidas con una lista de frecuencias del italiano hablado y revisadas), 136 verbos en 11 tiempos (incluido el passato remoto) y con reflexivos, 52 lecciones de gramática de A1 a C1 con 352 ejercicios y 39 falsos amigos español–italiano.
 - **Palabras transparentes** (≈ iguales al español y sin trampa de género ni falso amigo): sólo se practican en reconocimiento, no hace falta escribirlas.
 - Pronunciación con la voz italiana del sistema (Web Speech API).
 - **Escucha (dictado)**: la app lee una frase de los ejercicios que ya practicaste y la escribís completa, con opción de escucharla más lento o ver la traducción.
 - **Suspender tarjetas** ("ya la sé" / "no me interesa") y **reportar errores** de contenido desde el menú ⋯ de cada tarjeta.
+- **Lecturas graduadas** (pestaña Leer): 25 textos cortos de A1 a C1 sobre la vida cotidiana y la cultura italiana. Tocás cualquier palabra para ver la traducción y sumarla al repaso; audio del texto completo y preguntas de comprensión.
 - **Práctica de pronunciación**: botón 🎙️ "Decilo vos" que usa el reconocimiento de voz del navegador en italiano (Chrome, Edge, Safari) y te dice si se entendió. No afecta la nota.
 - **Tus puntos débiles** (en Progreso): las tarjetas que más fallás, con un botón para repasarlas aparte.
 - Secciones para recorrer vocabulario (con audio y estado de cada palabra), gramática y verbos, con práctica libre.
@@ -41,13 +42,14 @@ La investigación en adquisición de segundas lenguas y en psicología del apren
 | **Aprovechar los cognados** | Los cognados se aprenden casi gratis. El esfuerzo conviene ponerlo en lo que no se parece al español. | Las palabras transparentes (*il telefono*, *importante*) sólo se repasan en reconocimiento; las que no se parecen o tienen trampa también se practican escribiéndolas. |
 | **Práctica distribuida en sesiones cortas** | Pocos minutos frecuentes rinden más que sesiones largas y espaciadas. | "Sesión rápida" de ~3 minutos, cupo diario de tarjetas nuevas y racha de días para sostener el hábito. |
 | **Autoevaluación y metacognición** | Juzgar qué tan bien se sabe algo, y comprobarlo, ayuda a dirigir el estudio. | Después de cada respuesta calificás qué tan bien la sabías (Otra vez / Difícil / Bien / Fácil) y ves cuándo volverá. Los **tests por nivel** muestran tu resultado por área y mandan los errores al repaso. |
+| **Input comprensible** | Leer y escuchar textos que se entienden casi por completo hace crecer el vocabulario y la comprensión; combinarlo con repaso espaciado da mejores resultados que cada cosa por separado. | **Lecturas graduadas** por nivel con glosario palabra por palabra, audio y preguntas de comprensión; las palabras nuevas se suman al repaso con un toque. |
 | **Pronunciación y escucha** | Asociar la palabra escrita con su sonido ayuda a recordarla y a reconocerla al oírla. | Audio en italiano (voz del sistema) en palabras, conjugaciones y frases; **dictado** de frases ya practicadas; y práctica de pronunciación con reconocimiento de voz. |
 
-### Lo que la app no cubre (y conviene sumar)
+### Lo que la app cubre en parte (y conviene sumar)
 
 La evidencia es clara en que la repetición espaciada y los ejercicios **consolidan**, pero no reemplazan el contacto real con el idioma. Los mejores resultados aparecen al combinarlos con input y uso:
 
-- **Input comprensible abundante:** leer y escuchar mucho material que entiendas casi todo. Por ejemplo, lecturas graduadas, podcasts para estudiantes (como *Coffee Break Italian*) o series con subtítulos en italiano.
+- **Input comprensible abundante:** leer y escuchar mucho material que entiendas casi todo. La app trae 25 lecturas graduadas para empezar; para el volumen que hace falta, sumá libros graduados, podcasts para estudiantes (como *Coffee Break Italian*) o series con subtítulos en italiano.
 - **Producción oral e interacción:** hablar con personas, intercambios de idioma o clases de conversación.
 - **Escritura libre:** mensajes, un diario corto en italiano, y que alguien te corrija.
 
