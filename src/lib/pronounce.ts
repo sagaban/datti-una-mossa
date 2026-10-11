@@ -65,18 +65,17 @@ export type ListenError = 'not-allowed' | 'no-speech' | 'unsupported' | 'other'
  * como final y termina igual, y Chrome en Android corta enseguida. Por eso se piden
  * resultados parciales y, si al terminar hay algo reconocido, se usa eso.
  */
-export function listen(timeoutMs = 8000): Promise<string[]> {
+export function listen(timeoutMs = 8000, onReady?: () => void): Promise<string[]> {
   const C = ctor()
   if (!C) return Promise.reject<string[]>('unsupported' satisfies ListenError)
   // la voz de la app sonando mientras se abre el micrófono lo confunde (y en iOS lo bloquea)
   if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel()
   return new Promise((resolve, reject) => {
-    const rec = new C()
-    rec.lang = 'it-IT'
-    rec.maxAlternatives = 5
-    rec.interimResults = true
-    rec.continuous = false
+    let rec = new C()
     let heard: string[] = []
+    /** Chrome en Android corta a los pocos segundos de silencio: si no oyó nada, se vuelve a escuchar hasta el límite */
+    let deadline = 0
+    let retries = 0
     let done = false
     let timer: ReturnType<typeof setTimeout> | undefined
     const finish = (fn: () => void) => {
@@ -88,29 +87,56 @@ export function listen(timeoutMs = 8000): Promise<string[]> {
     // el tiempo corre desde que el micrófono está abierto, no mientras se pide el permiso;
     // al vencer se usa stop() (no abort()) para que el navegador entregue lo que ya oyó
     const arm = () => {
+      if (deadline) return
+      deadline = Date.now() + timeoutMs
       clearTimeout(timer)
       timer = setTimeout(() => rec.stop(), timeoutMs)
+      onReady?.()
     }
-    rec.onaudiostart = arm
-    rec.onresult = (e) => {
-      const alts: string[] = []
-      const parts = Array.from({ length: e.results.length }, (_, i) => e.results[i])
-      const first = parts[0]
-      if (!first) return
-      // con una sola frase alcanzan las alternativas del primer resultado; si el navegador
-      // la partió en varios, se arma la frase completa con la mejor de cada uno
-      if (parts.length === 1) for (let i = 0; i < first.length; i++) alts.push(first[i].transcript)
-      else alts.push(parts.map((r) => r[0]?.transcript ?? '').join(' '))
-      if (alts.some((a) => a.trim())) heard = alts.map((a) => a.trim()).filter(Boolean)
-      if (parts.every((r) => r.isFinal)) finish(() => resolve(heard))
+    const silentEnd = () => !heard.length && deadline > 0 && Date.now() < deadline - 1000 && retries < 3
+    const restart = () => {
+      retries++
+      rec = setup(new C())
+      try {
+        rec.start()
+      } catch {
+        finish(() => reject('other' satisfies ListenError))
+      }
     }
-    rec.onerror = (e) => {
-      if (heard.length && e.error !== 'not-allowed') return finish(() => resolve(heard))
-      const err: ListenError =
-        e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'not-allowed' : e.error === 'no-speech' || e.error === 'aborted' ? 'no-speech' : 'other'
-      finish(() => reject(err))
+    const setup = (rec: Recognition) => {
+      rec.lang = 'it-IT'
+      rec.maxAlternatives = 5
+      rec.interimResults = true
+      rec.continuous = false
+      rec.onaudiostart = arm
+      rec.onresult = (e) => {
+        const alts: string[] = []
+        const parts = Array.from({ length: e.results.length }, (_, i) => e.results[i])
+        const first = parts[0]
+        if (!first) return
+        // con una sola frase alcanzan las alternativas del primer resultado; si el navegador
+        // la partió en varios, se arma la frase completa con la mejor de cada uno
+        if (parts.length === 1) for (let i = 0; i < first.length; i++) alts.push(first[i].transcript)
+        else alts.push(parts.map((r) => r[0]?.transcript ?? '').join(' '))
+        if (alts.some((a) => a.trim())) heard = alts.map((a) => a.trim()).filter(Boolean)
+        if (heard.length && parts.every((r) => r.isFinal)) finish(() => resolve(heard))
+      }
+      rec.onerror = (e) => {
+        if (heard.length && e.error !== 'not-allowed') return finish(() => resolve(heard))
+        // el reintento lo hace onend, que llega después del error
+        if (e.error === 'no-speech' && silentEnd()) return
+        const err: ListenError =
+          e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'not-allowed' : e.error === 'no-speech' || e.error === 'aborted' ? 'no-speech' : 'other'
+        finish(() => reject(err))
+      }
+      rec.onend = () => {
+        if (done) return
+        if (silentEnd()) return restart()
+        finish(() => (heard.length ? resolve(heard) : reject('no-speech' satisfies ListenError)))
+      }
+      return rec
     }
-    rec.onend = () => finish(() => (heard.length ? resolve(heard) : reject('no-speech' satisfies ListenError)))
+    setup(rec)
     // por si el navegador nunca avisa que abrió el micrófono
     timer = setTimeout(() => rec.stop(), timeoutMs + 7000)
     try {

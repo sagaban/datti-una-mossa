@@ -88,6 +88,25 @@ describe('listen', () => {
     await expect(p).resolves.toEqual(['ciao'])
   })
 
+  it('si el navegador corta por silencio, vuelve a escuchar hasta el límite (Android)', async () => {
+    vi.useFakeTimers()
+    const rec = fakeRecognizer()
+    const ready = vi.fn()
+    const p = listen(8000, ready)
+    const first = rec()
+    first.onaudiostart()
+    expect(ready).toHaveBeenCalledOnce()
+    await vi.advanceTimersByTimeAsync(3000)
+    first.onerror({ error: 'no-speech' })
+    first.onend()
+    const second = rec()
+    expect(second).not.toBe(first)
+    second.onaudiostart()
+    second.onresult(event(result(true, 'arrivederci')))
+    await expect(p).resolves.toEqual(['arrivederci'])
+    expect(ready).toHaveBeenCalledOnce()
+  })
+
   it('sin nada reconocido avisa no-speech, y permiso denegado es otro error', async () => {
     let rec = fakeRecognizer()
     let p = listen()

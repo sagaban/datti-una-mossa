@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { type ListenError, canListen, listen, matchSpeech } from '../lib/pronounce'
 
-type State = { kind: 'idle' } | { kind: 'listening' } | { kind: 'ok' } | { kind: 'miss'; heard: string } | { kind: 'error'; error: ListenError }
+type State = { kind: 'idle' } | { kind: 'opening' } | { kind: 'listening' } | { kind: 'ok' } | { kind: 'miss'; heard: string } | { kind: 'error'; error: ListenError }
 
 const ERROR_MSG: Record<ListenError, string> = {
   'not-allowed': 'Permití el micrófono en el navegador para practicar.',
@@ -16,9 +16,9 @@ export function PronounceBtn({ text }: { text: string }) {
   if (!canListen()) return null
 
   const start = async () => {
-    setState({ kind: 'listening' })
+    setState({ kind: 'opening' })
     try {
-      const heard = await listen()
+      const heard = await listen(undefined, () => setState({ kind: 'listening' }))
       const { ok, best } = matchSpeech(heard, text)
       setState(ok ? { kind: 'ok' } : { kind: 'miss', heard: best })
     } catch (e) {
@@ -28,8 +28,8 @@ export function PronounceBtn({ text }: { text: string }) {
 
   return (
     <div className="pronounce">
-      <button type="button" className="btn small" onClick={start} disabled={state.kind === 'listening'}>
-        {state.kind === 'listening' ? '🎙️ Escuchando…' : '🎙️ Decilo vos'}
+      <button type="button" className="btn small" onClick={start} disabled={state.kind === 'opening' || state.kind === 'listening'}>
+        {state.kind === 'opening' ? '🎙️ Abriendo micrófono…' : state.kind === 'listening' ? '🔴 Hablá ahora' : '🎙️ Decilo vos'}
       </button>
       <span className="small" role="status" aria-live="polite">
         {state.kind === 'ok' && <span className="ok-txt">¡Bien dicho! ✓</span>}
