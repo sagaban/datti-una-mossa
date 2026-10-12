@@ -82,6 +82,9 @@ src/
   routes/                   index (inicio), repaso (sesión), vocab/, lezioni/, verbi/, test, progressi, impostazioni, sincronizar
 netlify/functions/sync.mts  POST/DELETE /api/sync
 netlify/functions/report.mts POST /api/report (reportes de errores → Blobs store `reports`)
+netlify/functions/reminder.mts POST/DELETE /api/reminder (suscripciones al recordatorio → store `reminders`)
+netlify/functions/send-reminders.mts función programada cada hora: manda los recordatorios (web-push)
+public/push-sw.js          handlers de push y click; el SW de Workbox lo importa (importScripts)
 scripts/sw.mjs              genera dist/client/sw.js
 ```
 
@@ -154,6 +157,16 @@ Los reflexivos se detectan por terminar en `-si`. Las formas con `/` indican var
 - `src/data/verb-examples/*.ts`: `{ infinitivo: { tiempo: [italiano, español] } }`, uno por cada verbo de `VERBS` y cada tiempo de `TENSES`. No generan tarjetas: se pueden corregir libremente.
 - La oración tiene que contener la forma que produce el conjugador (`findForm`, con el auxiliar que usa la app para ese verbo); `verb-examples.test.ts` lo valida. **Un verbo nuevo en `VERBS` necesita sus 11 ejemplos** o falla el test.
 - `TENSE_LESSON` (en `grammar.ts`) vincula cada tiempo con la lección que explica cuándo se usa; se muestra en la página del verbo.
+
+## Recordatorio diario (Web Push)
+
+- Por dispositivo, no se sincroniza: cada uno tiene su suscripción (`localStorage` `datti-una-mossa:reminder`). Ajustes → "Recordatorio diario".
+- `reminder-core.ts` (puro, compartido con las funciones): validación, `shouldSend` (a la hora elegida o después, si ese día no practicó y no se avisó) y la clave pública VAPID.
+- La app le avisa al servidor "hoy practiqué" una vez por día (`reportStudied`). Lo practicado en *otro* dispositivo no frena el aviso.
+- El servidor sólo manda a endpoints de servicios de push conocidos (FCM, Mozilla, Apple, Windows) y borra las suscripciones que devuelven 404/410.
+- **Clave privada VAPID:** variable de entorno `VAPID_PRIVATE_KEY` en Netlify (y en `.env` local, que no se commitea). Si cambia el par de claves, todas las suscripciones dejan de servir.
+- En iPhone sólo funciona con la app instalada en la pantalla de inicio (iOS 16.4+).
+- Probar local sin deploy: `netlify functions:serve --offline` (Blobs emulados, toma `.env`) y `curl localhost:9999/.netlify/functions/send-reminders` para correr la programada.
 
 ## Reportes de errores de contenido
 

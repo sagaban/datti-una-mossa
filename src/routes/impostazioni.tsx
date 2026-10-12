@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
+import { ReminderPanel } from '../components/ReminderPanel'
 import { SyncPanel } from '../components/SyncPanel'
 import { LEVELS } from '../data/verbs'
 import { AREA_LABEL, type Area } from '../lib/cards'
@@ -137,6 +138,8 @@ function Settings() {
           </button>
         </section>
       )}
+
+      <ReminderPanel />
 
       <SyncPanel />
 

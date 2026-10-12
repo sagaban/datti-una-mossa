@@ -1,5 +1,6 @@
 import { ClientOnly, HeadContent, Link, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
 import { useEffect } from 'react'
+import { initReminders } from '../lib/reminders'
 import { initSync } from '../lib/sync'
 import appCss from '../styles.css?url'
 
@@ -55,6 +56,7 @@ function RootLayout() {
     }
     navigator.storage?.persist?.().catch(() => {})
     initSync()
+    initReminders()
   }, [])
 
   return (

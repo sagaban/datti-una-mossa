@@ -13,6 +13,8 @@ const { count, size, warnings } = await generateSW({
   clientsClaim: true,
   skipWaiting: true,
   sourcemap: false,
+  // recordatorio diario (Web Push)
+  importScripts: ['push-sw.js'],
 })
 
 for (const w of warnings) console.warn(w)

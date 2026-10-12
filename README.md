@@ -24,6 +24,7 @@ https://datti-una-mossa.netlify.app
 - Secciones para recorrer vocabulario (con audio y estado de cada palabra), gramática y verbos, con práctica libre.
 - **Verbos con ejemplos**: cada tiempo de cada verbo trae una oración de ejemplo (con audio y traducción) y un link a la lección que explica cuándo se usa.
 - **Sincronización entre dispositivos** sin cuentas: un código aleatorio de 160 bits (o un link) empareja el celular y la compu. El progreso se guarda en Netlify Blobs bajo el hash del código; por tarjeta gana el repaso más reciente y las estadísticas se llevan por dispositivo. Funciona offline y sincroniza al abrir, al volver la conexión, al pasar a segundo plano y después de repasar.
+- **Recordatorio diario** con notificaciones push (opcional, por dispositivo): un aviso a la hora que elijas si ese día no practicaste. En iPhone, con la app instalada en la pantalla de inicio.
 - Exportar/importar el progreso en JSON.
 
 ## Métodos de aprendizaje en los que se basa

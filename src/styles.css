@@ -953,3 +953,12 @@ textarea.input {
 .nowrap {
   white-space: nowrap;
 }
+
+select {
+  font: inherit;
+  color: inherit;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
