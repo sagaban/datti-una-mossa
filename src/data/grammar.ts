@@ -1,3 +1,4 @@
+import type { Tense } from '../lib/conjugate'
 import { GRAMMAR_B2, GRAMMAR_C1 } from './grammar-advanced'
 import { GRAMMAR_EXTRA } from './grammar-extra'
 import { LEVELS, type Level } from './verbs'
@@ -411,3 +412,18 @@ const GRAMMAR_BASE: GrammarTopic[] = [
 export const GRAMMAR: GrammarTopic[] = [...GRAMMAR_BASE, ...GRAMMAR_B2, ...GRAMMAR_C1, ...GRAMMAR_EXTRA].sort(
   (a, b) => LEVELS.indexOf(a.level) - LEVELS.indexOf(b.level),
 )
+
+/** Lección que explica cuándo y cómo se usa cada tiempo verbal */
+export const TENSE_LESSON: Record<Tense, string> = {
+  presente: 'presente',
+  'passato prossimo': 'passato-prossimo',
+  imperfetto: 'imperfetto',
+  futuro: 'futuro',
+  condizionale: 'condizionale',
+  congiuntivo: 'congiuntivo',
+  'trapassato prossimo': 'trapassato-prossimo',
+  'futuro anteriore': 'futuro-anteriore',
+  'condizionale passato': 'condizionale-passato',
+  'congiuntivo imperfetto': 'congiuntivo-imperfetto',
+  'passato remoto': 'passato-remoto',
+}

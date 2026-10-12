@@ -13,7 +13,7 @@ https://datti-una-mossa.netlify.app
 - **Nivel inicial**: al empezar elegís cuánto italiano sabés (o hacés un test) y las tarjetas nuevas arrancan desde ese nivel; lo anterior queda para después.
 - **Límite diario de repasos** configurable: si se acumulan, van primero los más atrasados y las nuevas se pausan hasta ponerte al día.
 - **Historial de repasos** guardado y sincronizado, para poder optimizar FSRS con tus propios datos.
-- **Contenido**: 25 lecturas graduadas, ~2.800 palabras en 107 temas (A1–C1, elegidas con una lista de frecuencias del italiano hablado y revisadas), 136 verbos en 11 tiempos (incluido el passato remoto) y con reflexivos, 52 lecciones de gramática de A1 a C1 con 352 ejercicios y 39 falsos amigos español–italiano.
+- **Contenido**: 25 lecturas graduadas, ~2.800 palabras en 107 temas (A1–C1, elegidas con una lista de frecuencias del italiano hablado y revisadas), 136 verbos en 11 tiempos (incluido el passato remoto) y con reflexivos, 53 lecciones de gramática de A1 a C1 con 360 ejercicios y 39 falsos amigos español–italiano.
 - **Palabras transparentes** (≈ iguales al español y sin trampa de género ni falso amigo): sólo se practican en reconocimiento, no hace falta escribirlas.
 - Pronunciación con la voz italiana del sistema (Web Speech API).
 - **Escucha (dictado)**: la app lee una frase de los ejercicios que ya practicaste y la escribís completa, con opción de escucharla más lento o ver la traducción.
@@ -22,6 +22,7 @@ https://datti-una-mossa.netlify.app
 - **Práctica de pronunciación**: botón 🎙️ "Decilo vos" que usa el reconocimiento de voz del navegador en italiano (Chrome, Edge, Safari) y te dice si se entendió. No afecta la nota.
 - **Tus puntos débiles** (en Progreso): las tarjetas que más fallás, con un botón para repasarlas aparte.
 - Secciones para recorrer vocabulario (con audio y estado de cada palabra), gramática y verbos, con práctica libre.
+- **Verbos con ejemplos**: cada tiempo de cada verbo trae una oración de ejemplo (con audio y traducción) y un link a la lección que explica cuándo se usa.
 - **Sincronización entre dispositivos** sin cuentas: un código aleatorio de 160 bits (o un link) empareja el celular y la compu. El progreso se guarda en Netlify Blobs bajo el hash del código; por tarjeta gana el repaso más reciente y las estadísticas se llevan por dispositivo. Funciona offline y sincroniza al abrir, al volver la conexión, al pasar a segundo plano y después de repasar.
 - Exportar/importar el progreso en JSON.
 
@@ -36,7 +37,7 @@ La investigación en adquisición de segundas lenguas y en psicología del apren
 | **Feedback inmediato** | La recuperación rinde más si después se ve la respuesta correcta enseguida. | La corrección es instantánea, con la forma correcta, su audio y una nota cuando hace falta (género distinto, falso amigo, plural irregular). Tolera acentos y errores de tipeo, pero los marca. |
 | **Exposición antes de recuperar** | La recuperación espaciada funciona cuando ya hubo suficiente contacto previo con el material. Preguntar algo nunca visto sólo frustra. | Lo nuevo se **presenta primero** (palabra con traducción y audio, tabla del verbo o explicación de la lección) y se pregunta **unas tarjetas después**, en la misma sesión. Lo fallado vuelve a aparecer antes de terminar. |
 | **Práctica intercalada** | Mezclar temas y tipos de ejercicio mejora la retención y la capacidad de elegir la forma correcta, frente a practicar en bloques. | Cada sesión mezcla vocabulario, verbos, gramática y falsos amigos. Las tarjetas nuevas de cada área entran de a poco, intercaladas con los repasos. |
-| **Instrucción explícita de gramática** (*focus on form*) | El input por sí solo no alcanza para dominar la forma. Combinarlo con enseñanza explícita da mejores resultados. | 52 lecciones cortas de A1 a C1, cada una con ejercicios que después entran al repaso. |
+| **Instrucción explícita de gramática** (*focus on form*) | El input por sí solo no alcanza para dominar la forma. Combinarlo con enseñanza explícita da mejores resultados. | 53 lecciones cortas de A1 a C1, cada una con ejercicios que después entran al repaso. |
 | **Contraste con la lengua materna** | Para lenguas cercanas, señalar explícitamente las diferencias con la L1 previene errores fosilizados y aprovecha lo que ya se sabe. | Las lecciones explican qué es igual y qué cambia respecto del español (*penso che **sia***, *sono andato* y no *ho andato*). Hay 39 falsos amigos con su trampa y su traducción real, y avisos de género distinto (*il latte*, *la macchina*). |
 | **Vocabulario por frecuencia** | Unas pocas miles de palabras cubren la mayor parte de lo que se oye y se lee. Conviene aprender primero las más usadas. | Las ~2.800 palabras se eligieron con una lista de frecuencias del italiano hablado (subtítulos) y se ordenan por nivel. |
 | **Aprovechar los cognados** | Los cognados se aprenden casi gratis. El esfuerzo conviene ponerlo en lo que no se parece al español. | Las palabras transparentes (*il telefono*, *importante*) sólo se repasan en reconocimiento; las que no se parecen o tienen trampa también se practican escribiéndolas. |

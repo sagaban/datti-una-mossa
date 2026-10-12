@@ -63,6 +63,7 @@ src/
     grammar-extra.ts        temas que completan cada nivel
     falseFriends.ts         falsos amigos ES↔IT
     readings/               lecturas graduadas; index.ts junta solo todos los archivos de la carpeta (import.meta.glob)
+    verb-examples/          una oración de ejemplo por verbo y tiempo (se juntan solos, igual que readings)
     content-lock.json       candado de posiciones (ver invariante 1)
   lib/
     conjugate.ts            conjugador (regulares por reglas + irregulares + reflexivos + compuestos)
@@ -76,6 +77,7 @@ src/
     pronounce.ts            reconocimiento de voz y comparación de lo dicho
     reports.ts              reportes de errores con cola offline
     reading.ts              tokenización de lecturas y vínculo palabra → tarjeta de vocabulario
+    verb-example.ts         findForm: ubica la forma conjugada en la oración de ejemplo (para resaltarla y validarla)
   components/               Practice (práctica libre), SpeakBtn, SyncPanel
   routes/                   index (inicio), repaso (sesión), vocab/, lezioni/, verbi/, test, progressi, impostazioni, sincronizar
 netlify/functions/sync.mts  POST/DELETE /api/sync
@@ -146,6 +148,12 @@ Los reflexivos se detectan por terminar en `-si`. Las formas con `/` indican var
 - Glosario: la clave es la palabra tal como la tokeniza `lib/reading.ts` (letras + apóstrofo de elisión, en minúsculas: "l’", "amico", "po’"). `lemma` sólo si coincide con una entrada del vocabulario o un infinitivo de `VERBS`; si es una expresión ("a fuoco basso"), sólo cuando aparece completa en el texto.
 - Una palabra sin `lemma` igual se vincula si coincide con una entrada del vocabulario, con o sin artículo ("zucchero" → "lo zucchero").
 - `readings.test.ts` valida longitud por nivel, claves presentes en el texto, lemas existentes, cobertura ≥ 60% y preguntas. Para agregar lecturas, creá un archivo nuevo en `src/data/readings/` que exporte un array de `Reading`: se incluye solo.
+
+### 6. Ejemplos de verbos
+
+- `src/data/verb-examples/*.ts`: `{ infinitivo: { tiempo: [italiano, español] } }`, uno por cada verbo de `VERBS` y cada tiempo de `TENSES`. No generan tarjetas: se pueden corregir libremente.
+- La oración tiene que contener la forma que produce el conjugador (`findForm`, con el auxiliar que usa la app para ese verbo); `verb-examples.test.ts` lo valida. **Un verbo nuevo en `VERBS` necesita sus 11 ejemplos** o falla el test.
+- `TENSE_LESSON` (en `grammar.ts`) vincula cada tiempo con la lección que explica cuándo se usa; se muestra en la página del verbo.
 
 ## Reportes de errores de contenido
 

@@ -2,8 +2,11 @@ import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Practice } from '../../components/Practice'
 import { SpeakBtn } from '../../components/SpeakBtn'
+import { GRAMMAR, TENSE_LESSON } from '../../data/grammar'
+import { exampleFor } from '../../data/verb-examples'
 import { TENSE_LEVEL, VERBS } from '../../data/verbs'
-import { PERSONS, TENSES, TENSE_ES, TENSE_LABEL, auxOf, conjugate, expandForms, type Tense } from '../../lib/conjugate'
+import { findForm } from '../../lib/verb-example'
+import { PERSONS, TENSES, TENSE_ES, TENSE_LABEL, type Verb, auxOf, conjugate, expandForms, type Tense } from '../../lib/conjugate'
 
 export const Route = createFileRoute('/verbi/$inf')({
   loader: ({ params }) => {
@@ -75,10 +78,46 @@ function VerbPage() {
                   ))}
                 </tbody>
               </table>
+              <TenseExample verb={verb} tense={t} />
             </section>
           )
         })}
       </div>
+    </div>
+  )
+}
+
+/** Oración de ejemplo con la forma resaltada y link a la lección que explica el tiempo */
+function TenseExample({ verb, tense }: { verb: Verb; tense: Tense }) {
+  const ex = exampleFor(verb.inf, tense)
+  const lesson = GRAMMAR.find((g) => g.id === TENSE_LESSON[tense])
+  if (!ex && !lesson) return null
+  const span = ex && findForm(ex[0], verb, tense)
+  return (
+    <div className="tense-example">
+      {ex && (
+        <p>
+          <span className="it">
+            {span ? (
+              <>
+                {ex[0].slice(0, span[0])}
+                <strong>{ex[0].slice(span[0], span[1])}</strong>
+                {ex[0].slice(span[1])}
+              </>
+            ) : (
+              ex[0]
+            )}
+          </span>{' '}
+          <SpeakBtn text={ex[0]} />
+          <br />
+          <span className="muted small">{ex[1]}</span>
+        </p>
+      )}
+      {lesson && (
+        <Link to="/lezioni/$id" params={{ id: lesson.id }} className="small">
+          ¿Cuándo se usa? · {lesson.title} →
+        </Link>
+      )}
     </div>
   )
 }

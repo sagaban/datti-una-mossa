@@ -1,5 +1,6 @@
 import { FALSE_FRIENDS } from '../data/falseFriends'
 import { type Exercise, GRAMMAR } from '../data/grammar'
+import { exampleFor } from '../data/verb-examples'
 import { VOCAB } from '../data/vocab'
 import { LEVELS, TENSE_LEVEL, VERBS, type Level } from '../data/verbs'
 import { PERSONS, TENSES, TENSE_LABEL, conjugate, expandForms, type Tense } from './conjugate'
@@ -270,9 +271,15 @@ export function buildIntro(def: CardDef, seenGroups: Set<string>): Intro | null 
       const [, inf, tense] = def.id.split(':') as [string, string, Tense]
       const v = VERBS.find((v) => v.inf === inf)!
       const forms = conjugate(v, tense)
+      const example = exampleFor(inf, tense)
       return {
         title: `${inf} — ${TENSE_LABEL[tense]}`,
-        lines: [v.es, ...forms.map((f, i) => `${PERSONS[i]} ${f}`), ...(v.note ? [v.note] : [])],
+        lines: [
+          v.es,
+          ...forms.map((f, i) => `${PERSONS[i]} ${f}`),
+          ...(v.note ? [v.note] : []),
+          ...(example ? [`• ${example[0]} → ${example[1]}`] : []),
+        ],
         speak: forms.join(', '),
       }
     }
